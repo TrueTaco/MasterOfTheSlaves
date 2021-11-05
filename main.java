@@ -1,5 +1,3 @@
-package Übung5;
-
 import java.util.ArrayList;
 
 public class main {
@@ -8,6 +6,10 @@ public class main {
         ArrayList<Thread> threads = new ArrayList<>();
         System.out.println("Start main");
 
+        MasterSlave runnableMaster = new MasterSlave("Master");
+        Thread newMaster = new Thread(runnableMaster);
+        newMaster.start();
+        threads.add(newMaster);
 
         for(int i = 0; i < amountSlaves; i++) {
             MasterSlave runnableSlave = new MasterSlave("Slave");
@@ -16,12 +18,7 @@ public class main {
             threads.add(newSlave);
         }
 
-        MasterSlave runnableMaster = new MasterSlave("Master");
-        Thread newMaster = new Thread(runnableMaster);
-        newMaster.start();
-        threads.add(newMaster);
-
-        Client runnableClient = new Client(8002,"localhost");
+        Client runnableClient = new Client(8005,"localhost");
         Thread newClient = new Thread(runnableClient);
         newClient.start();
         threads.add(newClient);

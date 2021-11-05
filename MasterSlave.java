@@ -1,5 +1,3 @@
-package Übung5;
-
 import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -36,7 +34,7 @@ public class MasterSlave implements Runnable{
         if (type.equals("Slave")){
             try {
                 // Client Socket
-                ServerSocket clientServerSocket = new ServerSocket(8002, 100);
+                ServerSocket clientServerSocket = new ServerSocket(8005, 100);
                 Socket clientSocket = clientServerSocket.accept();
 
                 OutputStream slaveClientOutputStream = clientSocket.getOutputStream();
@@ -46,13 +44,12 @@ public class MasterSlave implements Runnable{
                 ObjectInputStream slaveClientObjectInputStream = new ObjectInputStream(slaveClientInputStream);
 
                 // Slave Socket
-                ServerSocket slaveServerSocket = new ServerSocket(8003, 100);
-                Socket slaveSocket = slaveServerSocket.accept();
+                Socket slaveServerSocket = initialiseClient( 8003,"localhost");
 
-                OutputStream slaveMasterOutputStream = clientSocket.getOutputStream();
+                OutputStream slaveMasterOutputStream = slaveServerSocket.getOutputStream();
                 ObjectOutputStream slaveMasterObjectOutputStream = new ObjectOutputStream(slaveMasterOutputStream);
 
-                InputStream slaveMasterInputStream = clientSocket.getInputStream();
+                InputStream slaveMasterInputStream = slaveServerSocket.getInputStream();
                 ObjectInputStream slaveMasterObjectInputStream = new ObjectInputStream(slaveMasterInputStream);
 
                 System.out.println("Slave " + pid + "-" + tid + " is ready");
@@ -61,9 +58,11 @@ public class MasterSlave implements Runnable{
                 while (true) {
                     Message message = read(slaveClientObjectInputStream);
                     slaveMasterObjectOutputStream.writeObject(message);
+                    System.out.println("Slave: Sending message to Master");
 
                     message = read(slaveMasterObjectInputStream);
                     slaveClientObjectOutputStream.writeObject(message);
+                    System.out.println("Slave: Sending message to Client");
                 }
 
             } catch (IOException e) {
@@ -71,7 +70,7 @@ public class MasterSlave implements Runnable{
             }
         }else if(type.equals("Master")){
             try {
-                ServerSocket masterServerSocket = new ServerSocket(8002, 100);
+                ServerSocket masterServerSocket = new ServerSocket(8003, 100);
                 Socket MasterSocket = masterServerSocket.accept();
 
                 OutputStream masterSlaveOutputStream = MasterSocket.getOutputStream();
@@ -95,13 +94,19 @@ public class MasterSlave implements Runnable{
         }
     }
 
-    public Socket initialise(String dns, int port) throws IOException {
+    public Socket initialiseServer(String dns, int port) throws IOException {
         ServerSocket serverSocket = new ServerSocket(
                 port,
                 maxIncomingClients,
                 InetAddress.getByName(dns));
         Socket clientCommSocket = serverSocket.accept();
         return clientCommSocket;
+    }
+
+    public Socket initialiseClient(int port, String dns) throws IOException {
+        Socket cs = new Socket(dns, port);
+
+        return cs;
     }
 
     public Message read(ObjectInputStream ois) {
@@ -119,6 +124,7 @@ public class MasterSlave implements Runnable{
         String lastEntry = "";
         String text = ((TextMessage) message.getPayload()).getMessage();
         if (message.getType().equals("WRITE")){
+            System.out.println("Master: WRITE received");
             FileWriter fw = new FileWriter("sockets.txt", true);
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(text);
@@ -127,6 +133,7 @@ public class MasterSlave implements Runnable{
             fw.close();
             return sendMessage("READ", "OK");
         }else if (message.getType().equals("READ")){
+            System.out.println("Master: READ received");
             try {
                 File myObj = new File("sockets.txt");
                 Scanner myReader = new Scanner(myObj);
@@ -138,7 +145,7 @@ public class MasterSlave implements Runnable{
                 myReader.close();
                 String txt = "";
                 for(int i = lastEntries.size();i > (Integer.parseInt(text)); i--){
-                    txt += lastEntries.get(i);
+                    txt += lastEntries.get(i-1);
                 }
                 return sendMessage("READ", txt);
             } catch (FileNotFoundException e) {

@@ -1,5 +1,3 @@
-package Übung5;
-
 import java.io.*;
 import java.net.Socket;
 import java.sql.Timestamp;
@@ -33,7 +31,13 @@ public class Client implements Runnable {
 
             System.out.println("Client " + pid + "-" + tid + " is ready");
 
-            sendMultiple(objectOutputStream);
+            sendMultiple(objectOutputStream, objectInputStream);
+            while (true) {
+                Message message = readStream(objectInputStream);
+                String text = ((TextMessage) message.getPayload()).getMessage();
+                System.out.println("Client: received " + text);
+                readStream(objectInputStream);
+            }
 
         } catch (IOException | InterruptedException e) {
             System.out.println("A client error occured.");
@@ -41,9 +45,9 @@ public class Client implements Runnable {
         }
     }
 
-    public void sendMultiple(ObjectOutputStream objectOutputStream) throws IOException, InterruptedException {
+    public void sendMultiple(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream) throws IOException, InterruptedException {
         int count = 0;
-        int limit = 3; // sets the amount of the messages to send
+        int limit = 2; // sets the amount of the messages to send
         String text = "";
 
         while (count <= limit) {
@@ -53,6 +57,12 @@ public class Client implements Runnable {
 
                 text = count + " | " + ts;
                 objectOutputStream.writeObject(write(text));
+                objectOutputStream.flush();
+
+                Message message = readStream(objectInputStream);
+                text = ((TextMessage) message.getPayload()).getMessage();
+                System.out.println("Client: received " + text);
+                readStream(objectInputStream);
 
                 int randomDelay = ThreadLocalRandom.current().nextInt(500, 1000);
                 Thread.sleep(randomDelay);
@@ -60,6 +70,12 @@ public class Client implements Runnable {
                 count++;
             } else {
                 objectOutputStream.writeObject(read(1));
+                objectOutputStream.flush();
+                Message message = readStream(objectInputStream);
+                text = ((TextMessage) message.getPayload()).getMessage();
+                System.out.println("Client: received " + text);
+                readStream(objectInputStream);
+
                 count++;
             }
         }
@@ -74,22 +90,33 @@ public class Client implements Runnable {
         message.setPayload(textMessage);
         System.out.println(message.getTime());
 
-        System.out.println("1. Client " + pid + "-" + tid + " WRITE: " + txt);
+        System.out.println("Client: sending WRITE");
 
         return message;
     }
 
     public Message read(int number) {
         TextMessage textMessage = new TextMessage();
-        textMessage.setMessage("");
+        textMessage.setMessage("2");
 
         Message message = new Message();
         message.setType("READ");
         message.setPayload(textMessage);
 
-        System.out.println("1. Client " + pid + "-" + tid + " READ: " + number);
+        System.out.println("Client: sending read");
 
         return message;
+    }
+
+    public Message readStream(ObjectInputStream ois) {
+        Message ret = null;
+        try {
+            ret = (Message) ois.readObject();
+        } catch (Exception e) {
+            System.err.println(e.toString());
+
+        }
+        return ret;
     }
 
     public Socket initialise(int port, String dns) throws IOException {

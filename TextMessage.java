@@ -1,5 +1,3 @@
-package Übung5;
-
 import java.io.Serializable;
 
 public class TextMessage implements Serializable {
