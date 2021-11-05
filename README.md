@@ -1,3 +1,3 @@
 # MasterOfTheSlaves
 
-Der Sklave seinen Meisters wird arbeiten!
+Der Sklave seines Meisters wird arbeiten!
