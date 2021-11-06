@@ -31,13 +31,8 @@ public class Client implements Runnable {
 
             System.out.println("Client " + pid + "-" + tid + " is ready");
 
+
             sendMultiple(objectOutputStream, objectInputStream);
-            while (true) {
-                Message message = readStream(objectInputStream);
-                String text = ((TextMessage) message.getPayload()).getMessage();
-                System.out.println("Client: received " + text);
-                readStream(objectInputStream);
-            }
 
         } catch (IOException | InterruptedException e) {
             System.out.println("A client error occured.");
@@ -54,16 +49,12 @@ public class Client implements Runnable {
             if (count < limit) {
                 long datetime = System.currentTimeMillis();
                 Timestamp ts = new Timestamp(datetime);
-
                 text = count + " | " + ts;
                 objectOutputStream.writeObject(write(text));
                 objectOutputStream.flush();
-
                 Message message = readStream(objectInputStream);
                 text = ((TextMessage) message.getPayload()).getMessage();
                 System.out.println("Client: received " + text);
-                readStream(objectInputStream);
-
                 int randomDelay = ThreadLocalRandom.current().nextInt(500, 1000);
                 Thread.sleep(randomDelay);
 
@@ -74,6 +65,7 @@ public class Client implements Runnable {
                 Message message = readStream(objectInputStream);
                 text = ((TextMessage) message.getPayload()).getMessage();
                 System.out.println("Client: received " + text);
+                System.out.println("\n");
                 readStream(objectInputStream);
 
                 count++;
@@ -88,7 +80,7 @@ public class Client implements Runnable {
         Message message = new Message();
         message.setType("WRITE");
         message.setPayload(textMessage);
-        System.out.println(message.getTime());
+        //System.out.println(message.getTime());
 
         System.out.println("Client: sending WRITE");
 
@@ -110,12 +102,13 @@ public class Client implements Runnable {
 
     public Message readStream(ObjectInputStream ois) {
         Message ret = null;
+
         try {
             ret = (Message) ois.readObject();
         } catch (Exception e) {
             System.err.println(e.toString());
-
         }
+
         return ret;
     }
 
