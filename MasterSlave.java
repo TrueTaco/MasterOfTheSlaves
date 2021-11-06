@@ -12,9 +12,27 @@ public class MasterSlave implements Runnable{
 
     private static final int maxIncomingClients = 100;
     private String type;
+    private int slavePort;
+    private int masterPort;
+    private int masterConnectionPort;
 
-    public MasterSlave(String type){
+    public MasterSlave(String type,int masterPort){
         this.type = type;
+        if(type.equals("Master")){
+            this.masterPort = masterPort;
+        }else {
+            throw new java.lang.Error("This constructor is used for Master");
+        }
+    }
+
+    public MasterSlave(String type,int slavePort, int masterConnectionPort){
+        this.type = type;
+        if (type.equals("Slave")){
+            this.slavePort = slavePort;
+            this.masterConnectionPort = masterConnectionPort;
+        }else {
+            throw new java.lang.Error("This constructor is used for Slave");
+        }
     }
 
     public String getType() {
@@ -27,6 +45,7 @@ public class MasterSlave implements Runnable{
 
 
 
+
     public void run() {
         pid =  ProcessHandle.current().pid();
         tid = Thread.currentThread().getId();
@@ -34,7 +53,7 @@ public class MasterSlave implements Runnable{
         if (type.equals("Slave")){
             try {
                 // Client Socket
-                ServerSocket clientServerSocket = new ServerSocket(8005, 100);
+                ServerSocket clientServerSocket = new ServerSocket(slavePort, 100);
                 Socket clientSocket = clientServerSocket.accept();
 
                 OutputStream slaveClientOutputStream = clientSocket.getOutputStream();
@@ -44,7 +63,7 @@ public class MasterSlave implements Runnable{
                 ObjectInputStream slaveClientObjectInputStream = new ObjectInputStream(slaveClientInputStream);
 
                 // Slave Socket
-                Socket slaveServerSocket = initialiseClient( 8003,"localhost");
+                Socket slaveServerSocket = initialiseClient( masterConnectionPort,"localhost");
 
                 OutputStream slaveMasterOutputStream = slaveServerSocket.getOutputStream();
                 ObjectOutputStream slaveMasterObjectOutputStream = new ObjectOutputStream(slaveMasterOutputStream);
@@ -70,7 +89,7 @@ public class MasterSlave implements Runnable{
             }
         }else if(type.equals("Master")){
             try {
-                ServerSocket masterServerSocket = new ServerSocket(8003, 100);
+                ServerSocket masterServerSocket = new ServerSocket(masterPort, 100);
                 Socket MasterSocket = masterServerSocket.accept();
 
                 OutputStream masterSlaveOutputStream = MasterSocket.getOutputStream();
