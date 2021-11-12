@@ -41,8 +41,8 @@ public class Client implements Runnable {
     }
 
     public void sendMultiple(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream) throws IOException, InterruptedException {
-        int count = 0;
-        int limit = 2; // sets the amount of the messages to send
+        int count = 1;
+        int limit = 0; // sets the amount of the messages to send
         String text = "";
 
         while (count <= limit) {
@@ -94,7 +94,7 @@ public class Client implements Runnable {
         message.setType("READ");
         message.setPayload(textMessage);
         System.out.println("\n");
-        System.out.println("Client: sending read");
+        System.out.println("Client: sending READ");
 
         return message;
     }

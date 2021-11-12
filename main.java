@@ -16,6 +16,10 @@ public class main {
         newSlave.start();
         threads.add(newSlave);
 
+        MasterSlave runnableSlave2 = new MasterSlave("Slave",8008,8005);
+        Thread newSlave2 = new Thread(runnableSlave2);
+        newSlave2.start();
+        threads.add(newSlave2);
 
         Client runnableClient = new Client(8003,"localhost");
         Thread newClient = new Thread(runnableClient);

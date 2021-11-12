@@ -15,6 +15,7 @@ public class MasterSlave implements Runnable{
     private int slavePort;
     private int masterPort;
     private int masterConnectionPort;
+    private ArrayList<Node> Nodes = new ArrayList<>();
 
     public MasterSlave(String type,int masterPort){
         this.type = type;
@@ -52,6 +53,7 @@ public class MasterSlave implements Runnable{
 
         if (type.equals("Slave")){
             try {
+                boolean discovered = false;
                 // Client Socket
                 ServerSocket clientServerSocket = new ServerSocket(slavePort, 100);
                 Socket clientSocket = clientServerSocket.accept();
@@ -75,11 +77,21 @@ public class MasterSlave implements Runnable{
 
 
                 while (true) {
+                    if (!discovered){
+                        Message message = read(slaveMasterObjectInputStream);
+                        if(message.getType().equals("DISCOVERY")){
+                            replyDiscovery(slaveMasterObjectOutputStream);
+                        }
+                        discovered = true;
+                    }
                     Message message = read(slaveClientObjectInputStream);
                     slaveMasterObjectOutputStream.writeObject(message);
                     System.out.println("Slave: Sending message to Master");
 
                     message = read(slaveMasterObjectInputStream);
+                    if(message.getType().equals("DISCOVERY")){
+                        replyDiscovery(slaveMasterObjectOutputStream);
+                    }
                     slaveClientObjectOutputStream.writeObject(message);
                     System.out.println("Slave: Sending message to Client");
                 }
@@ -100,6 +112,8 @@ public class MasterSlave implements Runnable{
 
                 System.out.println("Master " + pid + "-" + tid + " is ready");
 
+                discoveryRequest(masterSlaveObjectOutputStream, masterSlaveObjectInputStream);
+                System.out.println(Nodes);
                 while (true){
                     Message message = read(masterSlaveObjectInputStream);
                     masterSlaveObjectOutputStream.writeObject(queryMessage(message));
@@ -141,8 +155,8 @@ public class MasterSlave implements Runnable{
 
     public Message queryMessage(Message message) throws IOException {
         String lastEntry = "";
-        String text = ((TextMessage) message.getPayload()).getMessage();
         if (message.getType().equals("WRITE")){
+            String text = ((TextMessage) message.getPayload()).getMessage();
             System.out.println("Master: WRITE received");
             FileWriter fw = new FileWriter("sockets.txt", true);
             BufferedWriter bw = new BufferedWriter(fw);
@@ -152,6 +166,7 @@ public class MasterSlave implements Runnable{
             fw.close();
             return sendMessage("READ", "OK");
         }else if (message.getType().equals("READ")){
+            String text = ((TextMessage) message.getPayload()).getMessage();
             System.out.println("Master: READ received");
             try {
                 File myObj = new File("sockets.txt");
@@ -184,6 +199,29 @@ public class MasterSlave implements Runnable{
         message.setPayload(textMessage);
 
         return message;
+    }
+
+    public void discoveryRequest(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream) throws IOException {
+        Message message = new Message();
+        message.setType("DISCOVERY");
+
+        objectOutputStream.writeObject(message);
+        System.out.println("Master: Discovery request send");
+        message = read(objectInputStream);
+        System.out.println("Master: Discovery response received");
+        if (message.getType().equals("DISCOVERY-RESPONSE")){
+            Nodes.add((Node) (message.getPayload()));
+        }
+
+    }
+    public void replyDiscovery(ObjectOutputStream objectOutputStream) throws IOException {
+        System.out.println("Slave: Discovery request received");
+        Node node = new Node((pid+"-"+tid),slavePort,type);
+        Message nodeMessage = new Message();
+        nodeMessage.setType("DISCOVERY-RESPONSE");
+        nodeMessage.setPayload(node);
+        objectOutputStream.writeObject(nodeMessage);
+        System.out.println("Slave: Discovery response send");
     }
 }
 
