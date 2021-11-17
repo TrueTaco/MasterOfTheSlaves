@@ -84,18 +84,19 @@ public class MasterSlave implements Runnable {
                     }
 
                     // FORWARDING TO MASTER
-//                    Message message = read(slaveClientObjectInputStream);
-//                    slaveMasterObjectOutputStream.writeObject(message);
-//                    System.out.println("Slave: Sending message to Master");
+                    Message message = read(slaveClientObjectInputStream);
+                    slaveMasterObjectOutputStream.writeObject(message);
+                    System.out.println("Slave: Forwarding message to Master");
 
+                    // War das hier überhaupt noch nötig? Wird oben ja schon gemacht
 //                    if (message.getType().equals("DISCOVERY")) {
 //                        replyDiscovery(slaveMasterObjectOutputStream);
 //                    }
 
                     // FORWARDING TO CLIENT
-//                    message = read(slaveMasterObjectInputStream);
-//                    slaveClientObjectOutputStream.writeObject(message);
-//                    System.out.println("Slave: Sending message to Client");
+                    message = read(slaveMasterObjectInputStream);
+                    slaveClientObjectOutputStream.writeObject(message);
+                    System.out.println("Slave: Forwarding message to Client");
                 }
 
             } catch (IOException e) {
@@ -104,28 +105,15 @@ public class MasterSlave implements Runnable {
         } else if (type.equals("Master")) {
             try {
                 ServerSocket masterServerSocket = new ServerSocket(masterPort, 100);
-//                Socket MasterSocket = masterServerSocket.accept();
-
-//                OutputStream masterSlaveOutputStream = MasterSocket.getOutputStream();
-//                ObjectOutputStream masterSlaveObjectOutputStream = new ObjectOutputStream(masterSlaveOutputStream);
-//
-//                InputStream masterSlaveInputStream = MasterSocket.getInputStream();
-//                ObjectInputStream masterSlaveObjectInputStream = new ObjectInputStream(masterSlaveInputStream);
-
                 System.out.println("Master " + pid + "-" + tid + " is ready");
 
-//                discoveryRequest(masterSlaveObjectOutputStream, masterSlaveObjectInputStream);
-//                System.out.print("NodeList: ");
-//                System.out.println(NodeList);
+                // Connects to new slaves
                 while (true) {
-                    Socket newConnection = masterServerSocket.accept();
+                    Socket newSlaveConnection = masterServerSocket.accept();
 
-                    SlaveHandler newSlaveHandler = new SlaveHandler(newConnection);
+                    SlaveHandler newSlaveHandler = new SlaveHandler(newSlaveConnection);
                     Thread newThread = new Thread(newSlaveHandler);
                     newThread.start();
-
-//                    Message message = read(masterSlaveObjectInputStream);
-//                    masterSlaveObjectOutputStream.writeObject(queryMessage(message));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -207,19 +195,6 @@ public class MasterSlave implements Runnable {
         return message;
     }
 
-    public void discoveryRequest(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream) throws IOException {
-        Message message = new Message();
-        message.setType("DISCOVERY");
-
-        objectOutputStream.writeObject(message);
-        System.out.println("Master " + pid + "-" + tid + ": Discovery request send");
-        message = read(objectInputStream);
-        System.out.println("Master " + pid + "-" + tid + ": Discovery response received");
-        if (message.getType().equals("DISCOVERY-RESPONSE")) {
-            NodeList.add((Node) (message.getPayload()));
-        }
-    }
-
     public void replyDiscovery(ObjectOutputStream objectOutputStream) throws IOException {
         System.out.println("Slave " + pid + "-" + tid + ": Discovery request received");
         Node node = new Node((pid + "-" + tid), slavePort, type);
@@ -228,7 +203,6 @@ public class MasterSlave implements Runnable {
         nodeMessage.setPayload(node);
         objectOutputStream.writeObject(nodeMessage);
         System.out.println("Slave " + pid + "-" + tid + ": Discovery response send");
-
     }
 }
 
