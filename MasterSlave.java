@@ -82,6 +82,7 @@ public class MasterSlave implements Runnable {
                         }
                         discovered = true;
                     }
+                    System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
                     Message message = read(slaveMasterObjectInputStream);
                     runnableConnectionThread.forward(message);
                 }

@@ -33,8 +33,8 @@ public class ConnectionThread implements Runnable {
 
             while (true) {
                 Message message = read(objectInputStream);
+                System.out.println("ConnectionThread " + pid + "-" + tid + ": Calling function in Slave for forwarding");
                 father.forward(message);
-                System.out.println("ConnectionThread " + pid + "-" + tid + ": Forwarding message to Master");
             }
         } catch (IOException e) {
             System.out.println("A ConnectionThread error occured.");

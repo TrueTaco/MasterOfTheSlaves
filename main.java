@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class main {
     public static void main(String[] args) throws InterruptedException {
-        int amountSlaves = 4;
+        int amountSlaves = 2;
         int masterPort = 8000;
         ArrayList<Thread> threads = new ArrayList<>();
         System.out.println("Start main");
