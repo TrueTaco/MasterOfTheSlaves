@@ -53,14 +53,14 @@ public class MasterSlave implements Runnable {
             try {
                 boolean discovered = false;
                 // Client Socket
-//                ServerSocket clientServerSocket = new ServerSocket(slavePort, 100);
-//                Socket clientSocket = clientServerSocket.accept();
-//
-//                OutputStream slaveClientOutputStream = clientSocket.getOutputStream();
-//                ObjectOutputStream slaveClientObjectOutputStream = new ObjectOutputStream(slaveClientOutputStream);
-//
-//                InputStream slaveClientInputStream = clientSocket.getInputStream();
-//                ObjectInputStream slaveClientObjectInputStream = new ObjectInputStream(slaveClientInputStream);
+                ServerSocket clientServerSocket = new ServerSocket(slavePort, 100);
+                Socket clientSocket = clientServerSocket.accept();
+
+                OutputStream slaveClientOutputStream = clientSocket.getOutputStream();
+                ObjectOutputStream slaveClientObjectOutputStream = new ObjectOutputStream(slaveClientOutputStream);
+
+                InputStream slaveClientInputStream = clientSocket.getInputStream();
+                ObjectInputStream slaveClientObjectInputStream = new ObjectInputStream(slaveClientInputStream);
 
                 // Slave Socket
                 Socket slaveServerSocket = initialiseClient(masterConnectionPort, "localhost");

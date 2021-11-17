@@ -53,9 +53,9 @@ public class SlaveHandler implements Runnable {
         message.setType("DISCOVERY");
 
         objectOutputStream.writeObject(message);
-        System.out.println("SlaveMaster " + pid + "-" + tid + ": Discovery request send");
+        System.out.println("\nSlaveHandler " + pid + "-" + tid + ": Discovery request send");
         message = read(objectInputStream);
-        System.out.println("SlaveMaster " + pid + "-" + tid + ": Discovery response received");
+        System.out.println("SlaveHandler " + pid + "-" + tid + ": Discovery response received");
         if (message.getType().equals("DISCOVERY-RESPONSE")) {
 //            NodeList.add((Node) (message.getPayload()));
         }

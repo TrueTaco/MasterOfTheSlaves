@@ -2,8 +2,8 @@ import java.util.ArrayList;
 
 public class main {
     public static void main(String[] args) throws InterruptedException {
-        int amountSlaves = 1;
-        int masterPort = 8005;
+        int amountSlaves = 2;
+        int masterPort = 8000;
         ArrayList<Thread> threads = new ArrayList<>();
         System.out.println("Start main");
 
@@ -12,20 +12,17 @@ public class main {
         newMaster.start();
         threads.add(newMaster);
 
-        MasterSlave runnableSlave = new MasterSlave("Slave", 8003, masterPort);
-        Thread newSlave = new Thread(runnableSlave);
-        newSlave.start();
-        threads.add(newSlave);
+        for(int i = 0; i < amountSlaves; i++) {
+            MasterSlave newRunnableSlave = new MasterSlave("Slave", masterPort + i + 1, masterPort);
+            Thread newSlave = new Thread(newRunnableSlave);
+            newSlave.start();
+            threads.add(newSlave);
+        }
 
-        MasterSlave runnableSlave2 = new MasterSlave("Slave", 8008, masterPort);
-        Thread newSlave2 = new Thread(runnableSlave2);
-        newSlave2.start();
-        threads.add(newSlave2);
-
-//        Client runnableClient = new Client(8003, "localhost");
-//        Thread newClient = new Thread(runnableClient);
-//        newClient.start();
-//        threads.add(newClient);
+        Client runnableClient = new Client(masterPort + 1, "localhost");
+        Thread newClient = new Thread(runnableClient);
+        newClient.start();
+        threads.add(newClient);
 
         for (int i = 0; i < threads.size(); i++) {
             threads.get(i).join();

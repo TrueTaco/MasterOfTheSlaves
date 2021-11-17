@@ -31,6 +31,7 @@ public class Client implements Runnable {
 
             System.out.println("Client " + pid + "-" + tid + " is ready");
 
+            Thread.sleep(1000);
 
             sendMultiple(objectOutputStream, objectInputStream);
 
@@ -41,8 +42,8 @@ public class Client implements Runnable {
     }
 
     public void sendMultiple(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream) throws IOException, InterruptedException {
-        int count = 1;
-        int limit = 0; // sets the amount of the messages to send
+        int count = 0;
+        int limit = 1; // sets the amount of the messages to send
         String text = "";
 
         while (count <= limit) {
@@ -80,8 +81,7 @@ public class Client implements Runnable {
         message.setType("WRITE");
         message.setPayload(textMessage);
         //System.out.println(message.getTime());
-        System.out.println("\n");
-        System.out.println("Client: sending WRITE");
+        System.out.println("\nClient: Sending WRITE");
 
         return message;
     }
@@ -93,8 +93,7 @@ public class Client implements Runnable {
         Message message = new Message();
         message.setType("READ");
         message.setPayload(textMessage);
-        System.out.println("\n");
-        System.out.println("Client: sending READ");
+        System.out.println("\nClient: Sending READ");
 
         return message;
     }
