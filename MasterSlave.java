@@ -17,6 +17,7 @@ public class MasterSlave implements Runnable {
     private int masterConnectionPort;
     private ArrayList<Node> NodeList = new ArrayList<>();
 
+    public ArrayList<SlaveHandler> slaveHandlerList  = new ArrayList<>();;
     public ObjectOutputStream slaveMasterObjectOutputStream;
 
     public MasterSlave(String type, int masterPort) {
@@ -82,9 +83,16 @@ public class MasterSlave implements Runnable {
                         }
                         discovered = true;
                     }
-                    System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
                     Message message = read(slaveMasterObjectInputStream);
-                    runnableConnectionThread.forward(message);
+                    if (message.getType().equals("NEW LIST")) {
+                        System.out.println("Slave " + pid + "-" + tid + ": Received list " + message.getPayload());
+                        this.NodeList = (ArrayList<Node>) message.getPayload();
+                        System.out.println("Slave: New nodelist received:" + this.NodeList);
+                    }else {
+                        System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
+                        runnableConnectionThread.forward(message);
+                    }
+
                 }
 
             } catch (IOException e) {
@@ -99,8 +107,9 @@ public class MasterSlave implements Runnable {
                 while (true) {
                     Socket newSlaveConnection = masterServerSocket.accept();
 
-                    SlaveHandler newSlaveHandler = new SlaveHandler(newSlaveConnection);
+                    SlaveHandler newSlaveHandler = new SlaveHandler(newSlaveConnection, this);
                     Thread newThread = new Thread(newSlaveHandler);
+                    this.slaveHandlerList.add(newSlaveHandler);
                     newThread.start();
 
                     // Adds node to list
@@ -163,6 +172,13 @@ public class MasterSlave implements Runnable {
         // FORWARDING TO MASTER
         this.slaveMasterObjectOutputStream.writeObject(message);
         System.out.println("Slave " + pid + "-" + tid + ": Forwarding message to Master");
+    }
+
+    public void addNode(Node node) throws IOException {
+        this.NodeList.add(node);
+        for(SlaveHandler slaveHandler: slaveHandlerList){
+            slaveHandler.sendNewList(NodeList);
+        }
     }
 }
 

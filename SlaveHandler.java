@@ -8,8 +8,12 @@ public class SlaveHandler implements Runnable {
     Socket s;
     private long pid;
     private long tid;
+    private MasterSlave master;
 
-    public SlaveHandler(Socket s) {
+    private ObjectOutputStream objectOutputStream;
+
+    public SlaveHandler(Socket s, MasterSlave master ) {
+        this.master = master;
         this.s = s;
     }
 
@@ -20,6 +24,7 @@ public class SlaveHandler implements Runnable {
         try {
             OutputStream outputStream = s.getOutputStream();
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+            this.objectOutputStream = objectOutputStream;
 
             InputStream inputStream = s.getInputStream();
             ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
@@ -62,7 +67,7 @@ public class SlaveHandler implements Runnable {
         message = read(objectInputStream);
         System.out.println("SlaveHandler " + pid + "-" + tid + ": Discovery response received");
         if (message.getType().equals("DISCOVERY-RESPONSE")) {
-//            NodeList.add((Node) (message.getPayload()));
+            this.master.addNode((Node) (message.getPayload()));
         }
     }
 
@@ -113,5 +118,13 @@ public class SlaveHandler implements Runnable {
             }
         }
         return sendMessage("ERROR", "No matching message type");
+    }
+
+    public void sendNewList(ArrayList NodeList) throws IOException {
+        Message message = new Message();
+        message.setPayload(NodeList);
+        message.setType("NEW LIST");
+        System.out.println("SlaveHandler " + pid + "-" + tid + ": Sending updated Nodelist to Slave");
+        objectOutputStream.writeObject(message);
     }
 }
