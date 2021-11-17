@@ -55,7 +55,7 @@ public class Client implements Runnable {
                 objectOutputStream.flush();
                 Message message = readStream(objectInputStream);
                 text = ((TextMessage) message.getPayload()).getMessage();
-                System.out.println("Client: received " + text);
+                System.out.println("Client received: " + text);
                 int randomDelay = ThreadLocalRandom.current().nextInt(500, 1000);
                 Thread.sleep(randomDelay);
 
@@ -65,7 +65,7 @@ public class Client implements Runnable {
                 objectOutputStream.flush();
                 Message message = readStream(objectInputStream);
                 text = ((TextMessage) message.getPayload()).getMessage();
-                System.out.println("Client: received " + text);
+                System.out.println("Client received: " + text);
                 readStream(objectInputStream);
 
                 count++;
@@ -81,7 +81,7 @@ public class Client implements Runnable {
         message.setType("WRITE");
         message.setPayload(textMessage);
         //System.out.println(message.getTime());
-        System.out.println("\nClient: Sending WRITE");
+        System.out.println("\nClient sent: WRITE");
 
         return message;
     }
@@ -93,7 +93,7 @@ public class Client implements Runnable {
         Message message = new Message();
         message.setType("READ");
         message.setPayload(textMessage);
-        System.out.println("\nClient: Sending READ");
+        System.out.println("\nClient sent: READ");
 
         return message;
     }

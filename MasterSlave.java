@@ -86,7 +86,7 @@ public class MasterSlave implements Runnable {
                     // FORWARDING TO MASTER
                     Message message = read(slaveClientObjectInputStream);
                     slaveMasterObjectOutputStream.writeObject(message);
-                    System.out.println("Slave: Forwarding message to Master");
+                    System.out.println("Slave " + pid + "-" + tid + ": Forwarding message to Master");
 
                     // War das hier überhaupt noch nötig? Wird oben ja schon gemacht
 //                    if (message.getType().equals("DISCOVERY")) {
@@ -96,7 +96,7 @@ public class MasterSlave implements Runnable {
                     // FORWARDING TO CLIENT
                     message = read(slaveMasterObjectInputStream);
                     slaveClientObjectOutputStream.writeObject(message);
-                    System.out.println("Slave: Forwarding message to Client");
+                    System.out.println("Slave " + pid + "-" + tid + ": Forwarding message to Client");
                 }
 
             } catch (IOException e) {
@@ -145,43 +145,6 @@ public class MasterSlave implements Runnable {
 
         }
         return ret;
-    }
-
-    public Message queryMessage(Message message) throws IOException {
-        String lastEntry = "";
-        if (message.getType().equals("WRITE")) {
-            String text = ((TextMessage) message.getPayload()).getMessage();
-            System.out.println("Master: WRITE received");
-            FileWriter fw = new FileWriter("sockets.txt", true);
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(text);
-            bw.write(System.getProperty("line.separator"));
-            bw.close();
-            fw.close();
-            return sendMessage("READ", "OK");
-        } else if (message.getType().equals("READ")) {
-            String text = ((TextMessage) message.getPayload()).getMessage();
-            System.out.println("Master: READ received");
-            try {
-                File myObj = new File("sockets.txt");
-                Scanner myReader = new Scanner(myObj);
-                ArrayList<String> lastEntries = new ArrayList<String>();
-                while (myReader.hasNextLine()) {
-                    String data = myReader.nextLine();
-                    lastEntries.add(data);
-                }
-                myReader.close();
-                String txt = "";
-                for (int i = lastEntries.size(); i > (Integer.parseInt(text)); i--) {
-                    txt += lastEntries.get(i - 1);
-                }
-                return sendMessage("READ", txt);
-            } catch (FileNotFoundException e) {
-                System.out.println("A client handle error occured.");
-                e.printStackTrace();
-            }
-        }
-        return sendMessage("ERROR", "No matching message type");
     }
 
     public Message sendMessage(String type, String payload) {

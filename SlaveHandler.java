@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class SlaveHandler implements Runnable {
 
@@ -30,6 +32,10 @@ public class SlaveHandler implements Runnable {
                 Message message = read(objectInputStream);
                 TextMessage receivedText = (TextMessage) message.getPayload();
                 System.out.println("SlaveHandler " + pid + "-" + tid + " received: " + receivedText.getMessage());
+
+                message = queryMessage(message);
+                objectOutputStream.writeObject(message);
+                System.out.println("SlaveHandler " + pid + "-" + tid + " responded: " + ((TextMessage) message.getPayload()).getMessage());
             }
         } catch (IOException e) {
             System.out.println("A SlaveHandler error occured.");
@@ -61,4 +67,52 @@ public class SlaveHandler implements Runnable {
         }
     }
 
+    public Message sendMessage(String type, String payload) {
+        TextMessage textMessage = new TextMessage();
+        textMessage.setMessage(payload);
+
+        Message message = new Message();
+        message.setType(type);
+        message.setPayload(textMessage);
+
+        return message;
+    }
+
+    public Message queryMessage(Message message) throws IOException {
+        String lastEntry = "";
+        if (message.getType().equals("WRITE")) {
+            String text = ((TextMessage) message.getPayload()).getMessage();
+            System.out.println("SlaveHandler does: WRITE");
+            FileWriter fw = new FileWriter("sockets.txt", true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(text);
+            bw.write(System.getProperty("line.separator"));
+            bw.close();
+            fw.close();
+            return sendMessage("READ", "OK");
+        } else if (message.getType().equals("READ")) {
+            String text = ((TextMessage) message.getPayload()).getMessage();
+            System.out.println("SlaveHandler does: READ");
+            try {
+                File myObj = new File("sockets.txt");
+                Scanner myReader = new Scanner(myObj);
+                ArrayList<String> lastEntries = new ArrayList<String>();
+                while (myReader.hasNextLine()) {
+                    String data = myReader.nextLine();
+                    lastEntries.add(data);
+                }
+                myReader.close();
+                String txt = "";
+                for (int i = lastEntries.size(); i > (lastEntries.size() - Integer.parseInt(text)); i--) {
+                    txt += lastEntries.get(i - 1);
+                    txt += "; ";
+                }
+                return sendMessage("READ", txt);
+            } catch (FileNotFoundException e) {
+                System.out.println("A client handle error occured.");
+                e.printStackTrace();
+            }
+        }
+        return sendMessage("ERROR", "No matching message type");
+    }
 }
