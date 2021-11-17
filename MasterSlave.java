@@ -17,6 +17,8 @@ public class MasterSlave implements Runnable {
     private int masterConnectionPort;
     private ArrayList<Node> NodeList = new ArrayList<>();
 
+    public ObjectOutputStream slaveMasterObjectOutputStream;
+
     public MasterSlave(String type, int masterPort) {
         this.type = type;
         if (type.equals("Master")) {
@@ -54,19 +56,17 @@ public class MasterSlave implements Runnable {
                 boolean discovered = false;
                 // Client Socket
                 ServerSocket clientServerSocket = new ServerSocket(slavePort, 100);
-                Socket clientSocket = clientServerSocket.accept();
 
-                OutputStream slaveClientOutputStream = clientSocket.getOutputStream();
-                ObjectOutputStream slaveClientObjectOutputStream = new ObjectOutputStream(slaveClientOutputStream);
-
-                InputStream slaveClientInputStream = clientSocket.getInputStream();
-                ObjectInputStream slaveClientObjectInputStream = new ObjectInputStream(slaveClientInputStream);
+                ConnectionThread runnableConnectionThread = new ConnectionThread(clientServerSocket, this);
+                Thread newConnectionThread = new Thread(runnableConnectionThread);
+                newConnectionThread.start();
 
                 // Slave Socket
                 Socket slaveServerSocket = initialiseClient(masterConnectionPort, "localhost");
 
                 OutputStream slaveMasterOutputStream = slaveServerSocket.getOutputStream();
                 ObjectOutputStream slaveMasterObjectOutputStream = new ObjectOutputStream(slaveMasterOutputStream);
+                this.slaveMasterObjectOutputStream = slaveMasterObjectOutputStream;
 
                 InputStream slaveMasterInputStream = slaveServerSocket.getInputStream();
                 ObjectInputStream slaveMasterObjectInputStream = new ObjectInputStream(slaveMasterInputStream);
@@ -82,21 +82,8 @@ public class MasterSlave implements Runnable {
                         }
                         discovered = true;
                     }
-
-                    // FORWARDING TO MASTER
-                    Message message = read(slaveClientObjectInputStream);
-                    slaveMasterObjectOutputStream.writeObject(message);
-                    System.out.println("Slave " + pid + "-" + tid + ": Forwarding message to Master");
-
-                    // War das hier überhaupt noch nötig? Wird oben ja schon gemacht
-//                    if (message.getType().equals("DISCOVERY")) {
-//                        replyDiscovery(slaveMasterObjectOutputStream);
-//                    }
-
-                    // FORWARDING TO CLIENT
-                    message = read(slaveMasterObjectInputStream);
-                    slaveClientObjectOutputStream.writeObject(message);
-                    System.out.println("Slave " + pid + "-" + tid + ": Forwarding message to Client");
+                    Message message = read(slaveMasterObjectInputStream);
+                    runnableConnectionThread.forward(message);
                 }
 
             } catch (IOException e) {
@@ -114,6 +101,9 @@ public class MasterSlave implements Runnable {
                     SlaveHandler newSlaveHandler = new SlaveHandler(newSlaveConnection);
                     Thread newThread = new Thread(newSlaveHandler);
                     newThread.start();
+
+                    // Adds node to list
+                    System.out.println(newSlaveConnection.getLocalPort());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -166,6 +156,12 @@ public class MasterSlave implements Runnable {
         nodeMessage.setPayload(node);
         objectOutputStream.writeObject(nodeMessage);
         System.out.println("Slave " + pid + "-" + tid + ": Discovery response send");
+    }
+
+    public void forward(Message message) throws IOException {
+        // FORWARDING TO MASTER
+        this.slaveMasterObjectOutputStream.writeObject(message);
+        System.out.println("Slave " + pid + "-" + tid + ": Forwarding message to Master");
     }
 }
 

@@ -49,7 +49,6 @@ public class SlaveHandler implements Runnable {
             ret = (Message) ois.readObject();
         } catch (Exception e) {
             System.err.println(e.toString());
-
         }
         return ret;
     }
