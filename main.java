@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class main {
     public static void main(String[] args) throws InterruptedException {
-        int amountSlaves = 2;
+        int amountSlaves = 3;
         int masterPort = 8000;
         ArrayList<Thread> threads = new ArrayList<>();
         System.out.println("Start main");
@@ -11,12 +11,14 @@ public class main {
         Thread newMaster = new Thread(runnableMaster);
         newMaster.start();
         threads.add(newMaster);
+        Thread.sleep(100);
 
         for(int i = 0; i < amountSlaves; i++) {
             MasterSlave newRunnableSlave = new MasterSlave("Slave", masterPort + i + 1, masterPort);
             Thread newSlave = new Thread(newRunnableSlave);
             newSlave.start();
             threads.add(newSlave);
+            Thread.sleep(100);
         }
 
         Client runnableClient = new Client(masterPort + 1, "localhost");

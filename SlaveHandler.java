@@ -43,7 +43,7 @@ public class SlaveHandler implements Runnable {
                 System.out.println("SlaveHandler " + pid + "-" + tid + " responded: " + ((TextMessage) message.getPayload()).getMessage());
             }
         } catch (IOException e) {
-            System.out.println("A SlaveHandler error occured.");
+            System.out.println("A SlaveHandler " + pid + "-" + tid + " error occured.");
             e.printStackTrace();
         }
     }
@@ -125,6 +125,8 @@ public class SlaveHandler implements Runnable {
         message.setPayload(NodeList);
         message.setType("NEW LIST");
         System.out.println("SlaveHandler " + pid + "-" + tid + ": Sending updated Nodelist to Slave");
+        System.out.print("SlaveHandler " + pid + "-" + tid + ": ");
+        System.out.println(message.getPayload());
         objectOutputStream.writeObject(message);
     }
 }

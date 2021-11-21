@@ -83,11 +83,12 @@ public class MasterSlave implements Runnable {
                         }
                         discovered = true;
                     }
+                    //TODO: listen der einzelnen slave trheards anschauen per debug
                     Message message = read(slaveMasterObjectInputStream);
                     if (message.getType().equals("NEW LIST")) {
                         System.out.println("Slave " + pid + "-" + tid + ": Received list " + message.getPayload());
                         this.NodeList = (ArrayList<Node>) message.getPayload();
-                        System.out.println("Slave: New nodelist received:" + this.NodeList);
+                        System.out.println("Slave " + pid + "-" + tid + ": " + "New nodelist received:" + this.NodeList);
                     }else {
                         System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
                         runnableConnectionThread.forward(message);
