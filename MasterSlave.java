@@ -17,7 +17,8 @@ public class MasterSlave implements Runnable {
     private int masterConnectionPort;
     private ArrayList<Node> NodeList = new ArrayList<>();
 
-    public ArrayList<SlaveHandler> slaveHandlerList  = new ArrayList<>();;
+    public ArrayList<SlaveHandler> slaveHandlerList = new ArrayList<>();
+    ;
     public ObjectOutputStream slaveMasterObjectOutputStream;
 
     public MasterSlave(String type, int masterPort) {
@@ -83,13 +84,16 @@ public class MasterSlave implements Runnable {
                         }
                         discovered = true;
                     }
-                    //TODO: listen der einzelnen slave trheards anschauen per debug
                     Message message = read(slaveMasterObjectInputStream);
                     if (message.getType().equals("NEW LIST")) {
-                        System.out.println("Slave " + pid + "-" + tid + ": Received list " + message.getPayload());
                         this.NodeList = (ArrayList<Node>) message.getPayload();
-                        System.out.println("Slave " + pid + "-" + tid + ": " + "New nodelist received:" + this.NodeList);
-                    }else {
+                        String list = "";
+                        for (Node element : ((ArrayList<Node>) message.getPayload())) {
+                            list += element.getID() + ", ";
+                        }
+
+                        System.out.println("\nSlave " + pid + "-" + tid + ": " + "New nodelist received: " + list);
+                    } else {
                         System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
                         runnableConnectionThread.forward(message);
                     }
@@ -114,7 +118,7 @@ public class MasterSlave implements Runnable {
                     newThread.start();
 
                     // Adds node to list
-                    System.out.println(newSlaveConnection.getLocalPort());
+                    //System.out.println(newSlaveConnection.getLocalPort());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -177,7 +181,7 @@ public class MasterSlave implements Runnable {
 
     public void addNode(Node node) throws IOException {
         this.NodeList.add(node);
-        for(SlaveHandler slaveHandler: slaveHandlerList){
+        for (SlaveHandler slaveHandler : slaveHandlerList) {
             slaveHandler.sendNewList(NodeList);
         }
     }

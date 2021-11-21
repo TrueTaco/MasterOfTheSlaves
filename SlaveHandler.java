@@ -124,9 +124,14 @@ public class SlaveHandler implements Runnable {
         Message message = new Message();
         message.setPayload(NodeList);
         message.setType("NEW LIST");
-        System.out.println("SlaveHandler " + pid + "-" + tid + ": Sending updated Nodelist to Slave");
-        System.out.print("SlaveHandler " + pid + "-" + tid + ": ");
-        System.out.println(message.getPayload());
+
+        String list = "";
+        for(Node element: ((ArrayList<Node>) message.getPayload())){
+            list += element.getID() + ", ";
+        }
+        objectOutputStream.reset();
+        System.out.println("SlaveHandler " + pid + "-" + tid + ": Sending updated Nodelist to Slave: " + list);
         objectOutputStream.writeObject(message);
+
     }
 }
