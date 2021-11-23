@@ -19,7 +19,7 @@ public class ValuePicker {
     public static void main(String[] args) throws IOException {
         int min = 0;
         int max = 100000;
-        String path = "src/main/resources/primes"+max+".txt";
+        String path = "primes"+max+".txt";
         File f = new File(path);
         BufferedReader br = new BufferedReader( new FileReader(f));
         br.mark(0);

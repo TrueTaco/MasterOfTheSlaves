@@ -8,6 +8,7 @@ import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.util.encoders.Hex;
+import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -45,8 +46,8 @@ public class RSAHelper
     private AsymmetricCipherKeyPair getKeyPair(String p, String q)
     {
         // first we need the generator
-        eu.boxwork.dhbw.examhelpers.rsa.RSAKeyPairGenerator ownGenerator
-                = new eu.boxwork.dhbw.examhelpers.rsa.RSAKeyPairGenerator();
+        RSAKeyPairGenerator ownGenerator
+                = new RSAKeyPairGenerator();
         ownGenerator.init(new RSAKeyGenerationParameters(
                 RSAStatics.e,
                 new SecureRandom(),
@@ -57,7 +58,8 @@ public class RSAHelper
         BigInteger P = new BigInteger(p);
         BigInteger Q = new BigInteger(q);
 
-        AsymmetricCipherKeyPair keyPair = ownGenerator.generateKeyPair(P,Q);
+        //AsymmetricCipherKeyPair keyPair = ownGenerator.generateKeyPair(P,Q); original
+        AsymmetricCipherKeyPair keyPair = ownGenerator.generateKeyPair();
         return keyPair;
     }
 
@@ -102,8 +104,8 @@ public class RSAHelper
      * */
     public boolean isValid(BigInteger p, BigInteger q, BigInteger modulusPublicKey)
     {
-        eu.boxwork.dhbw.examhelpers.rsa.RSAKeyPairGenerator generator =
-                new eu.boxwork.dhbw.examhelpers.rsa.RSAKeyPairGenerator();
+        RSAKeyPairGenerator generator =
+                new RSAKeyPairGenerator();
         generator.init( new RSAKeyGenerationParameters(
                 RSAStatics.e,
                 new SecureRandom(),
@@ -113,7 +115,8 @@ public class RSAHelper
 
         try
         {
-            AsymmetricCipherKeyPair keyPair =generator.generateKeyPair(p,q);
+            //AsymmetricCipherKeyPair keyPair = generator.generateKeyPair(p,q); Original
+            AsymmetricCipherKeyPair keyPair = generator.generateKeyPair();
 
             RSAKeyParameters params =  (RSAKeyParameters) keyPair.getPublic();
 

@@ -19,8 +19,8 @@ public class KeyGenerator {
      * this method we use to generate our test keys
      * */
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
-        eu.boxwork.dhbw.examhelpers.rsa.RSAKeyPairGenerator ownGenerator
-                = new eu.boxwork.dhbw.examhelpers.rsa.RSAKeyPairGenerator();
+        RSAKeyPairGenerator ownGenerator
+                = new RSAKeyPairGenerator();
         ownGenerator.init(new RSAKeyGenerationParameters(
                 RSAStatics.e,
                 new SecureRandom(),

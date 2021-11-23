@@ -2,8 +2,9 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Timer;
 
 public class MasterSlave implements Runnable {
 
@@ -16,6 +17,7 @@ public class MasterSlave implements Runnable {
     private int masterPort;
     private int masterConnectionPort;
     private ArrayList<Node> NodeList = new ArrayList<>();
+    public HashMap<SlaveHandler, Thread> threads;
 
     public ArrayList<SlaveHandler> slaveHandlerList = new ArrayList<>();
     ;
@@ -93,6 +95,11 @@ public class MasterSlave implements Runnable {
                         }
 
                         System.out.println("\nSlave " + pid + "-" + tid + ": " + "New nodelist received: " + list);
+                    }else if (message.getType().equals("HEARTBEAT")) {
+                        this.NodeList = (ArrayList<Node>) message.getPayload();
+                        Message newMessage = new Message();
+                        newMessage.setType("HEARTBEAT-RESPONSE");
+                        slaveMasterObjectOutputStream.writeObject(newMessage);
                     } else {
                         System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
                         runnableConnectionThread.forward(message);
@@ -108,13 +115,19 @@ public class MasterSlave implements Runnable {
                 ServerSocket masterServerSocket = new ServerSocket(masterPort, 100);
                 System.out.println("Master " + pid + "-" + tid + " is ready");
 
+
+                Timer timer = new Timer();
+                timer.schedule(new ConnectionChecker(this), 10000, 5000);
+
                 // Connects to new slaves
                 while (true) {
                     Socket newSlaveConnection = masterServerSocket.accept();
 
                     SlaveHandler newSlaveHandler = new SlaveHandler(newSlaveConnection, this);
                     Thread newThread = new Thread(newSlaveHandler);
+                    threads.put(newSlaveHandler, newThread);
                     this.slaveHandlerList.add(newSlaveHandler);
+
                     newThread.start();
 
                     // Adds node to list

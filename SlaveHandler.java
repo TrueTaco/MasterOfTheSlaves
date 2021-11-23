@@ -11,6 +11,9 @@ public class SlaveHandler implements Runnable {
     private MasterSlave master;
 
     private ObjectOutputStream objectOutputStream;
+    private ObjectInputStream objectInputStream;
+
+    private boolean slaveAnsweredHeartbeat;
 
     public SlaveHandler(Socket s, MasterSlave master ) {
         this.master = master;
@@ -28,6 +31,7 @@ public class SlaveHandler implements Runnable {
 
             InputStream inputStream = s.getInputStream();
             ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+            this.objectInputStream = objectInputStream;
 
             System.out.println("SlaveHandler " + pid + "-" + tid + " is ready");
 
@@ -35,12 +39,17 @@ public class SlaveHandler implements Runnable {
 
             while (true) {
                 Message message = read(objectInputStream);
-                TextMessage receivedText = (TextMessage) message.getPayload();
-                System.out.println("SlaveHandler " + pid + "-" + tid + " received: " + receivedText.getMessage());
+                if (message.getType().equals("HEARTBEAT-RESPONSE")) {
+                    System.out.println("SlaveHandler " + pid + "-" + tid + " received: Heartbeat response ");
+                }else{
+                    TextMessage receivedText = (TextMessage) message.getPayload();
+                    System.out.println("SlaveHandler " + pid + "-" + tid + " received: " + receivedText.getMessage());
 
-                message = queryMessage(message);
-                objectOutputStream.writeObject(message);
-                System.out.println("SlaveHandler " + pid + "-" + tid + " responded: " + ((TextMessage) message.getPayload()).getMessage());
+                    message = queryMessage(message);
+                    objectOutputStream.writeObject(message);
+                    System.out.println("SlaveHandler " + pid + "-" + tid + " responded: " + ((TextMessage) message.getPayload()).getMessage());
+                }
+
             }
         } catch (IOException e) {
             System.out.println("A SlaveHandler " + pid + "-" + tid + " error occured.");
@@ -133,5 +142,17 @@ public class SlaveHandler implements Runnable {
         System.out.println("SlaveHandler " + pid + "-" + tid + ": Sending updated Nodelist to Slave: " + list);
         objectOutputStream.writeObject(message);
 
+    }
+
+    public boolean getSlaveAnsweredHeartbeat() {
+        return slaveAnsweredHeartbeat;
+    }
+
+    public void heartBeat() throws IOException {
+        Message message = new Message();
+        message.setType("HEARTBEAT");
+        slaveAnsweredHeartbeat = false;
+        objectOutputStream.writeObject(message);
+        System.out.println("SlaveHandler " + pid + "-" + tid + ": HEARTBEAT request send");
     }
 }
