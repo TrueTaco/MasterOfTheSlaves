@@ -153,6 +153,6 @@ public class SlaveHandler implements Runnable {
         message.setType("HEARTBEAT");
         slaveAnsweredHeartbeat = false;
         objectOutputStream.writeObject(message);
-        System.out.println("SlaveHandler " + pid + "-" + tid + ": HEARTBEAT request send");
+        System.out.println("\nSlaveHandler " + pid + "-" + tid + ": HEARTBEAT request send");
     }
 }
