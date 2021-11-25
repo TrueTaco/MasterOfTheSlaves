@@ -13,7 +13,7 @@ public class ConnectionChecker extends TimerTask {
         System.out.println("ConnectionChecker running");
         for(SlaveHandler sh: master.slaveHandlerList){
             try {
-                if (sh.getSlaveAnsweredHeartbeat() == false){
+                if (sh.getSlaveAnsweredHeartbeat() == true){
                     System.out.println("ConnectionChecker sending Heartbeat");
                     sh.heartBeat();
                 }else {

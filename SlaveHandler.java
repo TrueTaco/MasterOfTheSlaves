@@ -13,7 +13,7 @@ public class SlaveHandler implements Runnable {
     private ObjectOutputStream objectOutputStream;
     private ObjectInputStream objectInputStream;
 
-    private boolean slaveAnsweredHeartbeat;
+    private boolean slaveAnsweredHeartbeat = true;
 
     public SlaveHandler(Socket s, MasterSlave master ) {
         this.master = master;
@@ -41,6 +41,7 @@ public class SlaveHandler implements Runnable {
                 Message message = read(objectInputStream);
                 if (message.getType().equals("HEARTBEAT-RESPONSE")) {
                     System.out.println("SlaveHandler " + pid + "-" + tid + " received: Heartbeat response ");
+                    slaveAnsweredHeartbeat = true;
                 }else{
                     TextMessage receivedText = (TextMessage) message.getPayload();
                     System.out.println("SlaveHandler " + pid + "-" + tid + " received: " + receivedText.getMessage());
