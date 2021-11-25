@@ -115,7 +115,8 @@ public class RSAHelper
 
         try
         {
-            //AsymmetricCipherKeyPair keyPair = generator.generateKeyPair(p,q); Original
+            // TODO: Fragen, warum diese Funktion anscheinend keine Parameter übernimmt
+            //AsymmetricCipherKeyPair keyPair = generator.generateKeyPair(p,q);
             AsymmetricCipherKeyPair keyPair = generator.generateKeyPair();
 
             RSAKeyParameters params =  (RSAKeyParameters) keyPair.getPublic();
