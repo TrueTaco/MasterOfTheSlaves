@@ -117,7 +117,7 @@ public class MasterSlave implements Runnable {
 
 
                 Timer timer = new Timer();
-                timer.schedule(new ConnectionChecker(this), 10000, 5000);
+                timer.schedule(new ConnectionChecker(this), 5000, 5000);
 
                 // Connects to new slaves
                 while (true) {
