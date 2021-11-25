@@ -10,9 +10,11 @@ public class ConnectionChecker extends TimerTask {
     }
 
     public void run() {
+        System.out.println("ConnectionChecker running");
         for(SlaveHandler sh: master.slaveHandlerList){
             try {
-                if (sh.getSlaveAnsweredHeartbeat() == true){
+                if (sh.getSlaveAnsweredHeartbeat() == false){
+                    System.out.println("ConnectionChecker sending Heartbeat");
                     sh.heartBeat();
                 }else {
                     master.threads.get(sh).join();

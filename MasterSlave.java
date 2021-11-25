@@ -17,7 +17,7 @@ public class MasterSlave implements Runnable {
     private int masterPort;
     private int masterConnectionPort;
     private ArrayList<Node> NodeList = new ArrayList<>();
-    public HashMap<SlaveHandler, Thread> threads;
+    public HashMap<SlaveHandler, Thread> threads = new HashMap<>();
 
     public ArrayList<SlaveHandler> slaveHandlerList = new ArrayList<>();
     ;
@@ -117,7 +117,7 @@ public class MasterSlave implements Runnable {
 
 
                 Timer timer = new Timer();
-                timer.schedule(new ConnectionChecker(this), 10000, 5000);
+                timer.schedule(new ConnectionChecker(this), 5000, 5000);
 
                 // Connects to new slaves
                 while (true) {
