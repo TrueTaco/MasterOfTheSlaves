@@ -17,7 +17,7 @@ public class MasterSlave implements Runnable {
     private int masterPort;
     private int masterConnectionPort;
     private ArrayList<Node> NodeList = new ArrayList<>();
-    public HashMap<SlaveHandler, Thread> threads;
+    public HashMap<SlaveHandler, Thread> threads = new HashMap<>();
 
     public ArrayList<SlaveHandler> slaveHandlerList = new ArrayList<>();
     ;
