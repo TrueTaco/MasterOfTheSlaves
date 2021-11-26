@@ -2,9 +2,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Timer;
+import java.util.*;
 
 public class MasterSlave implements Runnable {
 
@@ -22,6 +20,10 @@ public class MasterSlave implements Runnable {
     public ArrayList<SlaveHandler> slaveHandlerList = new ArrayList<>();
     ;
     public ObjectOutputStream slaveMasterObjectOutputStream;
+
+    public String publicKey;
+    public String chiffre;
+    public String amountOfPrimes;
 
     public MasterSlave(String type, int masterPort) {
         this.type = type;
@@ -95,7 +97,7 @@ public class MasterSlave implements Runnable {
                         }
 
                         System.out.println("\nSlave " + pid + "-" + tid + ": " + "New nodelist received: " + list);
-                    }else if (message.getType().equals("HEARTBEAT")) {
+                    } else if (message.getType().equals("HEARTBEAT")) {
                         this.NodeList = (ArrayList<Node>) message.getPayload();
                         Message newMessage = new Message();
                         newMessage.setType("HEARTBEAT-RESPONSE");
@@ -197,6 +199,77 @@ public class MasterSlave implements Runnable {
         for (SlaveHandler slaveHandler : slaveHandlerList) {
             slaveHandler.sendNewList(NodeList);
         }
+    }
+
+    public void setRSAInformation(String publicKey, String chiffre, String amountOfPrimes) {
+        this.publicKey = publicKey;
+        this.chiffre = chiffre;
+        this.amountOfPrimes = amountOfPrimes;
+
+        ArrayList<String> primes = new ArrayList<>();
+        primes = readFromFile(amountOfPrimes);
+//        primes.remove(31);
+//        primes.remove(36);
+        primes.remove(12);
+
+        int lengthOfSubArray = primes.size() / this.NodeList.size();
+
+        System.out.println("LENGTH OF PRIMES: " + primes.size());
+        System.out.println("LENGTH OF SUB ARRAYS: " + lengthOfSubArray);
+
+        int chunkedSizes = 0;
+        int i = 0;
+        for (SlaveHandler slaveHandler : slaveHandlerList) {
+            int startIndex = lengthOfSubArray * i;
+            int endIndex;
+            ArrayList<String> publicKeyAndPrimes = new ArrayList<>();
+            publicKeyAndPrimes.add(publicKey);
+            List<String> chunkedPrimes;
+
+            if (i == NodeList.size() - 1) {
+                endIndex = primes.size();
+            } else {
+                endIndex = lengthOfSubArray * (i + 1) +1;
+            }
+            System.out.println(startIndex + " - " + endIndex);
+
+            chunkedPrimes = primes.subList(startIndex, endIndex);
+            System.out.println("LENGTH OF CHUNKEDPRIMES: " + chunkedPrimes.size());
+            chunkedSizes += chunkedPrimes.size();
+//            slaveHandler.sendToSlave(publicKeyAndPrimes);
+            i++;
+        }
+        System.out.println("TOTAL LENGTH OF CHUNKEDPRIMES: " + chunkedSizes);
+    }
+
+    // TODO: Primes aufteilen
+    // TODO: Public Key und Primes an Slaves schicken
+    // INFO: Grundsätzlich braucht ein Slave alle Primzahlen
+    // Äußere Schleife muss begrenzt werden, die innere hingegen nicht
+    // TODO: Im Slave Primes abarbeiten
+    // TODO: Bei isValid Nachricht an Master schicken
+    // TODO: Im Master die Nachricht entschlüsseln
+    // TODO: Entschlüsselte Nachricht an Client schicken
+
+    public static ArrayList readFromFile(String amountOfPrimes) {
+        ArrayList<String> content = new ArrayList<>();
+
+        String filename = "resources/primes" + amountOfPrimes + ".txt";
+
+        try {
+            File file = new File(filename);
+            Scanner myReader = new Scanner(file);
+
+            while (myReader.hasNextLine()) {
+                String data = myReader.nextLine();
+                content.add(data);
+            }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occured while reading the file");
+            e.printStackTrace();
+        }
+        return content;
     }
 }
 

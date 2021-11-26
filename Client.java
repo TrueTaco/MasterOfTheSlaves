@@ -1,3 +1,5 @@
+import org.w3c.dom.Text;
+
 import java.io.*;
 import java.net.Socket;
 import java.sql.Timestamp;
@@ -33,7 +35,29 @@ public class Client implements Runnable {
 
             Thread.sleep(1000);
 
-            sendMultiple(objectOutputStream, objectInputStream);
+            String publicKey = "298874689697528581074572362022003292763";
+            String chiffre = "b4820013b07bf8513ee59a905039fb631203c8b38ca3d59b475b4e4e092d3979";
+            String amountOfPrimes = "100";
+
+            String[] rsaInformation = {publicKey, chiffre, amountOfPrimes};
+
+            Message message = new Message();
+            message.setType("RSA");
+            message.setPayload(rsaInformation);
+            //System.out.println(message.getTime());
+            System.out.println("\nClient sent: RSA Information");
+
+            objectOutputStream.writeObject(message);
+
+            //sendMultiple(objectOutputStream, objectInputStream);
+
+            while(true) {
+                message = readStream(objectInputStream);
+                if(message.getType().equals("RSA-RESPONSE")) {
+                    TextMessage textMessage = (TextMessage) message.getPayload();
+                    System.out.println("Client received: " + textMessage.getMessage());
+                }
+            }
 
         } catch (IOException | InterruptedException e) {
             System.out.println("A client error occured.");
@@ -73,28 +97,26 @@ public class Client implements Runnable {
         }
     }
 
-    public Message write(String txt) {
+    public Message sendMessage(String type, String payload) {
         TextMessage textMessage = new TextMessage();
-        textMessage.setMessage(txt);
+        textMessage.setMessage(payload);
 
         Message message = new Message();
-        message.setType("WRITE");
+        message.setType(type);
         message.setPayload(textMessage);
-        //System.out.println(message.getTime());
-        System.out.println("\nClient sent: WRITE");
+
+        System.out.println("\nClient sent: (" + type + ") " + payload);
 
         return message;
     }
 
+    public Message write(String txt) {
+        Message message = sendMessage("WRITE", txt);
+        return message;
+    }
+
     public Message read(int number) {
-        TextMessage textMessage = new TextMessage();
-        textMessage.setMessage("2");
-
-        Message message = new Message();
-        message.setType("READ");
-        message.setPayload(textMessage);
-        System.out.println("\nClient sent: READ");
-
+        Message message = sendMessage( "READ", String.valueOf(number));
         return message;
     }
 

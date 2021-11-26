@@ -22,6 +22,7 @@ public class main {
             Thread.sleep(100);
         }
 
+        Thread.sleep(3000);
         Client runnableClient = new Client(masterPort + 1, "localhost");
         Thread newClient = new Thread(runnableClient);
         newClient.start();
