@@ -8,7 +8,6 @@ import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.util.encoders.Hex;
-import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -58,8 +57,8 @@ public class RSAHelper
         BigInteger P = new BigInteger(p);
         BigInteger Q = new BigInteger(q);
 
-        //AsymmetricCipherKeyPair keyPair = ownGenerator.generateKeyPair(P,Q); original
-        AsymmetricCipherKeyPair keyPair = ownGenerator.generateKeyPair();
+        AsymmetricCipherKeyPair keyPair = ownGenerator.generateKeyPair(P,Q);
+        //AsymmetricCipherKeyPair keyPair = ownGenerator.generateKeyPair();
         return keyPair;
     }
 
@@ -115,9 +114,7 @@ public class RSAHelper
 
         try
         {
-            // TODO: Fragen, warum diese Funktion anscheinend keine Parameter übernimmt
-            //AsymmetricCipherKeyPair keyPair = generator.generateKeyPair(p,q);
-            AsymmetricCipherKeyPair keyPair = generator.generateKeyPair();
+            AsymmetricCipherKeyPair keyPair = generator.generateKeyPair(p,q);
 
             RSAKeyParameters params =  (RSAKeyParameters) keyPair.getPublic();
 

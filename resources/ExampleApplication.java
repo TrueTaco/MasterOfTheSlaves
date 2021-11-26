@@ -27,7 +27,6 @@ public class ExampleApplication {
                 if (isValid) {
                     System.out.println("Found it: p = " + p + ", q = " + q);
                 }
-                System.out.println(p + " | " + q);
             }
             if ((i+1) % 10 == 0) System.out.println("Round " + i + " done");
         }
