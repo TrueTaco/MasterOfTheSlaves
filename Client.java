@@ -1,5 +1,3 @@
-import org.w3c.dom.Text;
-
 import java.io.*;
 import java.net.Socket;
 import java.sql.Timestamp;
@@ -20,7 +18,7 @@ public class Client implements Runnable {
 
     public void run() {
         try {
-            pid =  ProcessHandle.current().pid();
+            pid = ProcessHandle.current().pid();
             tid = Thread.currentThread().getId();
 
             Socket cs = initialise(port, dns);
@@ -35,9 +33,32 @@ public class Client implements Runnable {
 
             Thread.sleep(1000);
             // TODO: Alle public keys hier im Client mal speichern und dann auf basis der länge der primes mitgeben
-            String publicKey = "237023640130486964288372516117459992717";
-            String chiffre = "b4820013b07bf8513ee59a905039fb631203c8b38ca3d59b475b4e4e092d3979";
-            String amountOfPrimes = "10000";
+
+            String publicKey = "";
+            String chiffre = "";
+
+            String amountOfPrimes = "100000";
+
+            switch (amountOfPrimes){
+                case "100":
+                    publicKey = "298874689697528581074572362022003292763";
+                    chiffre = "b4820013b07bf8513ee59a905039fb631203c8b38ca3d59b475b4e4e092d3979";
+                    break;
+                case "1000":
+                    publicKey = "249488851623337787855631201847950907117";
+                    chiffre = "55708f0326a16870b299f913984922c7b5b37725ce0f6670d963adc0dc3451c8";
+                    break;
+                case "10000":
+                    publicKey = "237023640130486964288372516117459992717";
+                    chiffre = "a9fc180908ad5f60556fa42b3f76e30f48bcddfad906f312b6ca429f25cebbd0";
+                    break;
+                case "100000":
+                    publicKey = "174351747363332207690026372465051206619";
+                    chiffre = "80f7b3b84e8354b36386c6833fe5c113445ce74cd30a21236a5c70f5fdca7208";
+                    break;
+                default:
+                    break;
+            }
 
             String[] rsaInformation = {publicKey, chiffre, amountOfPrimes};
 
@@ -51,12 +72,12 @@ public class Client implements Runnable {
 
             //sendMultiple(objectOutputStream, objectInputStream);
 
-            while(true) {
+            while (true) {
                 message = readStream(objectInputStream);
-                if(message.getType().equals("RSA-RESPONSE")) {
-                    TextMessage textMessage = (TextMessage) message.getPayload();
-                    System.out.println("Client received: " + textMessage.getMessage());
-                }
+
+                TextMessage textMessage = (TextMessage) message.getPayload();
+                System.out.println("Client received: " + textMessage.getMessage());
+
             }
 
         } catch (IOException | InterruptedException e) {
@@ -116,7 +137,7 @@ public class Client implements Runnable {
     }
 
     public Message read(int number) {
-        Message message = sendMessage( "READ", String.valueOf(number));
+        Message message = sendMessage("READ", String.valueOf(number));
         return message;
     }
 

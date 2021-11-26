@@ -1,8 +1,6 @@
 import resources.RSAHelper;
 
-import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class WorkingSlave implements Runnable {
@@ -16,11 +14,12 @@ public class WorkingSlave implements Runnable {
     public int endIndex;
     private ArrayList<String> primes;
 
-    public WorkingSlave(String publicKey, int startIndex, int endIndex, ArrayList<String> slavePrimes) {
+    public WorkingSlave(String publicKey, int startIndex, int endIndex, ArrayList<String> slavePrimes, MasterSlave father) {
         this.publicKey = publicKey;
         this.startIndex = startIndex;
         this.endIndex = endIndex;
         this.primes = slavePrimes;
+        this.father = father;
     }
 
     public void run() {
@@ -39,13 +38,23 @@ public class WorkingSlave implements Runnable {
                 isValid = helper.isValid(p, q, publicKey);
                 if (isValid) {
                     System.out.println("WorkingSlave " + pid + "-" + tid + " found: p = " + p + ", q = " + q);
-                    return;
+                    try {
+                        father.shareSolution(p, q);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    i = endIndex - 1;
+                    break;
                 }
             }
 //            if ((i+1) % 10 == 0) System.out.println("Round " + i + " done");
         }
-        System.out.println("WorkingSlave " + pid + "-" + tid + " was not able to meet the required standards and therefore was eliminated");
-
+        //System.out.println("WorkingSlave " + pid + "-" + tid + " is trying to kill itself");
+        try {
+            father.annihilateWorkingSlave();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // TODO: Wenn fertig, dann Methode aus father ausrufen, die mich vernichtet
     }
 }

@@ -134,7 +134,11 @@ public class SlaveHandler implements Runnable {
             String[] arrayMessage = (String[]) message.getPayload();
 
             master.setRSAInformation(arrayMessage[0], arrayMessage[1], arrayMessage[2]);
-            return sendMessage("RSA-RESPONSE", "Master received RSA Information");
+            return sendMessage("RSA-RESPONSE", "Master received RSA information");
+        }else if (message.getType().equals("RSA-SOLUTION")){
+            ArrayList<String> pqPrimes = (ArrayList<String>) message.getPayload();
+            master.distributeSolution(master.decrypt(pqPrimes.get(0), pqPrimes.get(1)));
+            return sendMessage("RSA-RESPONSE", "Master received RSA solution");
         }
         return sendMessage("ERROR", "No matching message type");
     }
@@ -174,5 +178,8 @@ public class SlaveHandler implements Runnable {
 //        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
     }
 
-
+    public void sendRSASolution(String chiffreText) throws IOException {
+        objectOutputStream.writeObject(sendMessage("RSA-SOLUTION", chiffreText));
+//        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
+    }
 }

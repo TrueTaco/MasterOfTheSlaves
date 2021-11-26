@@ -54,7 +54,9 @@ public class ConnectionThread implements Runnable {
 
     public void forward(Message message) throws IOException {
         // FORWARDING TO CLIENT
-        this.objectOutputStream.writeObject(message);
-        System.out.println("ConnectionThread " + pid + "-" + tid + ": Forwarding message to Client");
+        if (objectOutputStream != null){
+            this.objectOutputStream.writeObject(message);
+            System.out.println("ConnectionThread " + pid + "-" + tid + ": Forwarding message to Client");
+        }
     }
 }

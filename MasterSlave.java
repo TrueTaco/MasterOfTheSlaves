@@ -1,9 +1,13 @@
+import resources.RSAHelper;
+
 import java.io.*;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Scanner;
+import java.util.Timer;
 
 public class MasterSlave implements Runnable {
     // Both
@@ -18,6 +22,7 @@ public class MasterSlave implements Runnable {
     private int masterConnectionPort;
     private ArrayList<Node> NodeList = new ArrayList<>();
     public HashMap<SlaveHandler, Thread> threads = new HashMap<>();
+    public long firstPointInTime;
 
     public ArrayList<SlaveHandler> slaveHandlerList = new ArrayList<>();
 
@@ -26,6 +31,11 @@ public class MasterSlave implements Runnable {
     public String publicKey;
     public String chiffre;
     public String amountOfPrimes;
+
+    // Slave
+    private Thread workingSlave;
+    private boolean killSlave = false;
+
 
     public MasterSlave(String type, int masterPort) {
         this.type = type;
@@ -114,17 +124,23 @@ public class MasterSlave implements Runnable {
                         rsaInformation.remove(2);
                         rsaInformation.remove(1);
                         rsaInformation.remove(0);
-                        ArrayList<String>  slavePrimes = rsaInformation;
+                        ArrayList<String> slavePrimes = rsaInformation;
 
-                        WorkingSlave runnableWorkingSlave = new WorkingSlave(slavePublicKey, startIndex, endIndex, slavePrimes);
+                        WorkingSlave runnableWorkingSlave = new WorkingSlave(slavePublicKey, startIndex, endIndex, slavePrimes, this);
                         Thread newWorkingSlave = new Thread(runnableWorkingSlave);
+                        workingSlave = newWorkingSlave;
                         newWorkingSlave.start();
                     } else {
                         System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
                         runnableConnectionThread.forward(message);
                     }
+                    if (killSlave) {
+                        workingSlave.join();
+                        System.out.println("Slave " + pid + "-" + tid + ": killed my workingSlave");
+                        killSlave = false;
+                    }
                 }
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         } else if (type.equals("Master")) {
@@ -253,6 +269,7 @@ public class MasterSlave implements Runnable {
 //            chunkedPrimes = primes.subList(startIndex, endIndex);
             i++;
         }
+        firstPointInTime = System.currentTimeMillis();
     }
 
     // TODO: Primes aufteilen
@@ -283,6 +300,32 @@ public class MasterSlave implements Runnable {
             e.printStackTrace();
         }
         return content;
+    }
+
+    public void annihilateWorkingSlave() throws InterruptedException {
+        killSlave = true;
+    }
+
+    public void shareSolution(String p, String q) throws IOException {
+        Message message = new Message();
+        ArrayList<String> pq = new ArrayList<>();
+        pq.add(p);
+        pq.add(q);
+        message.setPayload(pq);
+        message.setType("RSA-SOLUTION");
+        slaveMasterObjectOutputStream.writeObject(message);
+    }
+
+    public String decrypt(String p, String q) {
+        System.out.println("Time for decryption: " + (System.currentTimeMillis()-firstPointInTime) + "ms");
+        RSAHelper helper = new RSAHelper();
+        return helper.decrypt(p, q, chiffre);
+    }
+
+    public void distributeSolution(String chiffre) throws IOException {
+        for (SlaveHandler slaveHandler : slaveHandlerList) {
+            slaveHandler.sendRSASolution(chiffre);
+        }
     }
 }
 
