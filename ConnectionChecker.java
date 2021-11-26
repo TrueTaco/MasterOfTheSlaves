@@ -10,6 +10,7 @@ public class ConnectionChecker extends TimerTask {
     }
 
     public void run() {
+        System.out.println("Sending HEARTBEAT requests");
         for(SlaveHandler sh: master.slaveHandlerList){
             try {
                 if (sh.getSlaveAnsweredHeartbeat() == true){

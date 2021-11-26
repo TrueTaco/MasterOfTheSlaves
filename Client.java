@@ -34,10 +34,10 @@ public class Client implements Runnable {
             System.out.println("Client " + pid + "-" + tid + " is ready");
 
             Thread.sleep(1000);
-
-            String publicKey = "298874689697528581074572362022003292763";
+            // TODO: Alle public keys hier im Client mal speichern und dann auf basis der länge der primes mitgeben
+            String publicKey = "237023640130486964288372516117459992717";
             String chiffre = "b4820013b07bf8513ee59a905039fb631203c8b38ca3d59b475b4e4e092d3979";
-            String amountOfPrimes = "100";
+            String amountOfPrimes = "10000";
 
             String[] rsaInformation = {publicKey, chiffre, amountOfPrimes};
 

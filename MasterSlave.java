@@ -1,14 +1,16 @@
 import java.io.*;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 
 public class MasterSlave implements Runnable {
-
+    // Both
     private long pid;
     private long tid;
 
+    // Master?
     private static final int maxIncomingClients = 100;
     private String type;
     private int slavePort;
@@ -18,7 +20,7 @@ public class MasterSlave implements Runnable {
     public HashMap<SlaveHandler, Thread> threads = new HashMap<>();
 
     public ArrayList<SlaveHandler> slaveHandlerList = new ArrayList<>();
-    ;
+
     public ObjectOutputStream slaveMasterObjectOutputStream;
 
     public String publicKey;
@@ -95,20 +97,33 @@ public class MasterSlave implements Runnable {
                         for (Node element : ((ArrayList<Node>) message.getPayload())) {
                             list += element.getID() + ", ";
                         }
-
                         System.out.println("\nSlave " + pid + "-" + tid + ": " + "New nodelist received: " + list);
                     } else if (message.getType().equals("HEARTBEAT")) {
                         this.NodeList = (ArrayList<Node>) message.getPayload();
                         Message newMessage = new Message();
                         newMessage.setType("HEARTBEAT-RESPONSE");
                         slaveMasterObjectOutputStream.writeObject(newMessage);
+                    } else if (message.getType().equals("RSA-INFORMATION")) {
+                        System.out.println("Slave " + pid + "-" + tid + " received: RSA information");
+                        // TODO: Variablen speichern
+                        ArrayList<String> rsaInformation = (ArrayList<String>) message.getPayload();
+
+                        String slavePublicKey = rsaInformation.get(0);
+                        int startIndex = Integer.parseInt(rsaInformation.get(1));
+                        int endIndex = Integer.parseInt(rsaInformation.get(2));
+                        rsaInformation.remove(2);
+                        rsaInformation.remove(1);
+                        rsaInformation.remove(0);
+                        ArrayList<String>  slavePrimes = rsaInformation;
+
+                        WorkingSlave runnableWorkingSlave = new WorkingSlave(slavePublicKey, startIndex, endIndex, slavePrimes);
+                        Thread newWorkingSlave = new Thread(runnableWorkingSlave);
+                        newWorkingSlave.start();
                     } else {
                         System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
                         runnableConnectionThread.forward(message);
                     }
-
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -201,45 +216,43 @@ public class MasterSlave implements Runnable {
         }
     }
 
-    public void setRSAInformation(String publicKey, String chiffre, String amountOfPrimes) {
+    public void setRSAInformation(String publicKey, String chiffre, String amountOfPrimes) throws IOException {
+        System.out.println("\nMaster sent: Computing information");
+
         this.publicKey = publicKey;
         this.chiffre = chiffre;
         this.amountOfPrimes = amountOfPrimes;
 
-        ArrayList<String> primes = new ArrayList<>();
-        primes = readFromFile(amountOfPrimes);
-//        primes.remove(31);
-//        primes.remove(36);
-        primes.remove(12);
+        ArrayList<String> primes = readFromFile(amountOfPrimes);
 
         int lengthOfSubArray = primes.size() / this.NodeList.size();
 
-        System.out.println("LENGTH OF PRIMES: " + primes.size());
-        System.out.println("LENGTH OF SUB ARRAYS: " + lengthOfSubArray);
-
-        int chunkedSizes = 0;
         int i = 0;
         for (SlaveHandler slaveHandler : slaveHandlerList) {
             int startIndex = lengthOfSubArray * i;
             int endIndex;
-            ArrayList<String> publicKeyAndPrimes = new ArrayList<>();
-            publicKeyAndPrimes.add(publicKey);
-            List<String> chunkedPrimes;
 
             if (i == NodeList.size() - 1) {
                 endIndex = primes.size();
             } else {
-                endIndex = lengthOfSubArray * (i + 1) +1;
+                endIndex = lengthOfSubArray * (i + 1);
             }
-            System.out.println(startIndex + " - " + endIndex);
 
-            chunkedPrimes = primes.subList(startIndex, endIndex);
-            System.out.println("LENGTH OF CHUNKEDPRIMES: " + chunkedPrimes.size());
-            chunkedSizes += chunkedPrimes.size();
-//            slaveHandler.sendToSlave(publicKeyAndPrimes);
+            // Contains: [0] = public key
+            // Contains: [1] = start index
+            // Contains: [2] = end index
+            // Contains: [...] = primes
+            ArrayList<String> rsaInformation = new ArrayList<>();
+            rsaInformation.add(publicKey);
+            rsaInformation.add(String.valueOf(startIndex));
+            rsaInformation.add(String.valueOf(endIndex));
+            rsaInformation.addAll(primes);
+
+            slaveHandler.sendToSlave(rsaInformation);
+
+//            chunkedPrimes = primes.subList(startIndex, endIndex);
             i++;
         }
-        System.out.println("TOTAL LENGTH OF CHUNKEDPRIMES: " + chunkedSizes);
     }
 
     // TODO: Primes aufteilen

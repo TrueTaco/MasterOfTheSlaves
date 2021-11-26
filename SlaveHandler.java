@@ -40,7 +40,7 @@ public class SlaveHandler implements Runnable {
             while (true) {
                 Message message = read(objectInputStream);
                 if (message.getType().equals("HEARTBEAT-RESPONSE")) {
-                    System.out.println("SlaveHandler " + pid + "-" + tid + " received: Heartbeat response ");
+//                    System.out.println("SlaveHandler " + pid + "-" + tid + " received: Heartbeat response ");
                     slaveAnsweredHeartbeat = true;
                 } else {
 //                    TextMessage receivedText = (TextMessage) message.getPayload();
@@ -75,7 +75,7 @@ public class SlaveHandler implements Runnable {
         objectOutputStream.writeObject(message);
         System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: Discovery request");
         message = read(objectInputStream);
-        System.out.println("SlaveHandler " + pid + "-" + tid + "received: Discovery response");
+        System.out.println("SlaveHandler " + pid + "-" + tid + " received: Discovery response");
         if (message.getType().equals("DISCOVERY-RESPONSE")) {
             this.master.addNode((Node) (message.getPayload()));
         }
@@ -92,9 +92,7 @@ public class SlaveHandler implements Runnable {
         return message;
     }
 
-    public void sendToSlave(String[] publicKeyAndPrimes) {
-        System.out.println("Sending public key and primes to ma boi");
-    }
+
 
     public Message queryMessage(Message message) throws IOException {
         String lastEntry = "";
@@ -132,10 +130,22 @@ public class SlaveHandler implements Runnable {
             }
         } else if (message.getType().equals("RSA")) {
             System.out.println("SlaveHandler does: RSA-INFORMATION");
-            master.setRSAInformation("ASD", "AFD", "100");
+
+            String[] arrayMessage = (String[]) message.getPayload();
+
+            master.setRSAInformation(arrayMessage[0], arrayMessage[1], arrayMessage[2]);
             return sendMessage("RSA-RESPONSE", "Master received RSA Information");
         }
         return sendMessage("ERROR", "No matching message type");
+    }
+
+    public void sendToSlave(ArrayList<String> rsaInformation) throws IOException {
+        Message message = new Message();
+        message.setType("RSA-INFORMATION");
+        message.setPayload(rsaInformation);
+        objectOutputStream.writeObject(message);
+
+        System.out.println("SlaveHandler " + pid + "-" + tid + " forwarded: RSA information");
     }
 
     public void sendNewList(ArrayList NodeList) throws IOException {
@@ -150,7 +160,6 @@ public class SlaveHandler implements Runnable {
         objectOutputStream.reset();
         System.out.println("SlaveHandler " + pid + "-" + tid + ": Sending updated Nodelist to Slave: " + list);
         objectOutputStream.writeObject(message);
-
     }
 
     public boolean getSlaveAnsweredHeartbeat() {
@@ -162,7 +171,7 @@ public class SlaveHandler implements Runnable {
         message.setType("HEARTBEAT");
         slaveAnsweredHeartbeat = false;
         objectOutputStream.writeObject(message);
-        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
+//        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
     }
 
 
