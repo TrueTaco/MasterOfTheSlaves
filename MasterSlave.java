@@ -115,7 +115,6 @@ public class MasterSlave implements Runnable {
                         slaveMasterObjectOutputStream.writeObject(newMessage);
                     } else if (message.getType().equals("RSA-INFORMATION")) {
                         System.out.println("Slave " + pid + "-" + tid + " received: RSA information");
-                        // TODO: Variablen speichern
                         ArrayList<String> rsaInformation = (ArrayList<String>) message.getPayload();
 
                         String slavePublicKey = rsaInformation.get(0);

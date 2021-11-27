@@ -92,8 +92,6 @@ public class SlaveHandler implements Runnable {
         return message;
     }
 
-
-
     public Message queryMessage(Message message) throws IOException {
         String lastEntry = "";
         if (message.getType().equals("WRITE")) {
