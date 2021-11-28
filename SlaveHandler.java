@@ -40,7 +40,7 @@ public class SlaveHandler implements Runnable {
             while (true) {
                 Message message = read(objectInputStream);
                 if (message.getType().equals("HEARTBEAT-RESPONSE")) {
-//                    System.out.println("SlaveHandler " + pid + "-" + tid + " received: Heartbeat response ");
+                    System.out.println("SlaveHandler " + pid + "-" + tid + " received: Heartbeat response ");
                     slaveAnsweredHeartbeat = true;
                 } else {
 //                    TextMessage receivedText = (TextMessage) message.getPayload();
@@ -95,7 +95,6 @@ public class SlaveHandler implements Runnable {
 
 
     public Message queryMessage(Message message) throws IOException {
-        String lastEntry = "";
         if (message.getType().equals("WRITE")) {
             String text = ((TextMessage) message.getPayload()).getMessage();
             System.out.println("SlaveHandler does: WRITE");
@@ -175,11 +174,11 @@ public class SlaveHandler implements Runnable {
         message.setType("HEARTBEAT");
         slaveAnsweredHeartbeat = false;
         objectOutputStream.writeObject(message);
-//        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
+        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
     }
 
     public void sendRSASolution(String chiffreText) throws IOException {
         objectOutputStream.writeObject(sendMessage("RSA-SOLUTION", chiffreText));
-//        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
+        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: send RSA solution");
     }
 }

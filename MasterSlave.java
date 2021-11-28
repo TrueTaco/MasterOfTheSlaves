@@ -33,7 +33,7 @@ public class MasterSlave implements Runnable {
     public String amountOfPrimes;
 
     // Slave
-    private Thread workingSlave;
+    private Thread WorkingThread;
     private boolean killSlave = false;
 
 
@@ -126,17 +126,17 @@ public class MasterSlave implements Runnable {
                         rsaInformation.remove(0);
                         ArrayList<String> slavePrimes = rsaInformation;
 
-                        WorkingSlave runnableWorkingSlave = new WorkingSlave(slavePublicKey, startIndex, endIndex, slavePrimes, this);
-                        Thread newWorkingSlave = new Thread(runnableWorkingSlave);
-                        workingSlave = newWorkingSlave;
-                        newWorkingSlave.start();
+                        WorkingThread runnableWorkingThread = new WorkingThread(slavePublicKey, startIndex, endIndex, slavePrimes, this);
+                        Thread newWorkingThread = new Thread(runnableWorkingThread);
+                        WorkingThread = newWorkingThread;
+                        newWorkingThread.start();
                     } else {
                         System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
                         runnableConnectionThread.forward(message);
                     }
                     if (killSlave) {
-                        workingSlave.join();
-                        System.out.println("Slave " + pid + "-" + tid + ": killed my workingSlave");
+                        WorkingThread.join();
+                        System.out.println("Slave " + pid + "-" + tid + ": killed my WorkingThread");
                         killSlave = false;
                     }
                 }
@@ -302,7 +302,7 @@ public class MasterSlave implements Runnable {
         return content;
     }
 
-    public void annihilateWorkingSlave() throws InterruptedException {
+    public void annihilateWorkingThread() throws InterruptedException {
         killSlave = true;
     }
 

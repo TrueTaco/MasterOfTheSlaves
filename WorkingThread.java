@@ -3,7 +3,7 @@ import resources.RSAHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class WorkingSlave implements Runnable {
+public class WorkingThread implements Runnable {
 
     MasterSlave father;
     private long pid;
@@ -14,7 +14,7 @@ public class WorkingSlave implements Runnable {
     public int endIndex;
     private ArrayList<String> primes;
 
-    public WorkingSlave(String publicKey, int startIndex, int endIndex, ArrayList<String> slavePrimes, MasterSlave father) {
+    public WorkingThread(String publicKey, int startIndex, int endIndex, ArrayList<String> slavePrimes, MasterSlave father) {
         this.publicKey = publicKey;
         this.startIndex = startIndex;
         this.endIndex = endIndex;
@@ -51,7 +51,7 @@ public class WorkingSlave implements Runnable {
         }
         //System.out.println("WorkingSlave " + pid + "-" + tid + " is trying to kill itself");
         try {
-            father.annihilateWorkingSlave();
+            father.annihilateWorkingThread();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
