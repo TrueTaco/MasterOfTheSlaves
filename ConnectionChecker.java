@@ -18,6 +18,8 @@ public class ConnectionChecker extends TimerTask {
                     sh.heartBeat();
                 }else {
                     master.threads.get(sh).join();
+                    master.slaveHandlerList.remove(sh);
+                    master.threads.remove(sh);
                 }
 
             } catch (IOException | InterruptedException e) {
