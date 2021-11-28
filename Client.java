@@ -119,7 +119,7 @@ public class Client implements Runnable {
         }
     }
 
-    // returns message with text message as payload depending on the input type and payload
+    // Returns message with text message as payload depending on the input type and payload
     public Message sendMessage(String type, String payload) {
         TextMessage textMessage = new TextMessage();
         textMessage.setMessage(payload);

@@ -71,14 +71,14 @@ public class MasterSlave implements Runnable {
         if (type.equals("Slave")) {
             try {
                 boolean discovered = false;
-                // creates Client Socket ands start connection thread
+                // Creates Client Socket ands start connection thread
                 ServerSocket clientServerSocket = new ServerSocket(slavePort, 100);
 
                 ConnectionThread runnableConnectionThread = new ConnectionThread(clientServerSocket, this);
                 Thread newConnectionThread = new Thread(runnableConnectionThread);
                 newConnectionThread.start();
 
-                // creates Slave Socket
+                // Creates Slave Socket
                 Socket slaveServerSocket = initialiseClient(masterConnectionPort, "localhost");
 
                 OutputStream slaveMasterOutputStream = slaveServerSocket.getOutputStream();
@@ -91,7 +91,7 @@ public class MasterSlave implements Runnable {
                 System.out.println("Slave " + pid + "-" + tid + " is ready");
 
                 while (true) {
-                    // check if the node is already discovery
+                    // Check if the node is already discovery
                     if (!discovered) {
                         Message message = read(slaveMasterObjectInputStream);
                         if (message.getType().equals("DISCOVERY")) {
@@ -100,7 +100,7 @@ public class MasterSlave implements Runnable {
                         discovered = true;
                     }
                     Message message = read(slaveMasterObjectInputStream);
-                    // if message type equals New List, safe the received list
+                    // If message type equals New List, safe the received list
                     if (message.getType().equals("NEW LIST")) {
                         this.NodeList = (ArrayList<Node>) message.getPayload();
                         String list = "";
@@ -108,12 +108,12 @@ public class MasterSlave implements Runnable {
                             list += element.getID() + ", ";
                         }
                         System.out.println("\nSlave " + pid + "-" + tid + ": " + "New nodelist received: " + list);
-                    // if message type equals heartbeat, create and send message as response
+                    // If message type equals heartbeat, create and send message as response
                     } else if (message.getType().equals("HEARTBEAT")) {
                         Message newMessage = new Message();
                         newMessage.setType("HEARTBEAT-RESPONSE");
                         slaveMasterObjectOutputStream.writeObject(newMessage);
-                    // if message type equals RSA information, parse the information and start working slave with given parameters
+                    // If message type equals RSA information, parse the information and start working slave with given parameters
                     } else if (message.getType().equals("RSA-INFORMATION")) {
                         System.out.println("Slave " + pid + "-" + tid + " received: RSA information");
                         ArrayList<String> rsaInformation = (ArrayList<String>) message.getPayload();
@@ -130,7 +130,7 @@ public class MasterSlave implements Runnable {
                         Thread newWorkingThread = new Thread(runnableWorkingThread);
                         WorkingThread = newWorkingThread;
                         newWorkingThread.start();
-                    // if no matching message type is found forward message to Client
+                    // If no matching message type is found forward message to Client
                     } else {
                         System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
                         runnableConnectionThread.forward(message);
@@ -197,7 +197,7 @@ public class MasterSlave implements Runnable {
         return ret;
     }
 
-    // returns message with text message as payload depending on the input type and payload
+    // Returns message with text message as payload depending on the input type and payload
     public Message sendMessage(String type, String payload) {
         TextMessage textMessage = new TextMessage();
         textMessage.setMessage(payload);
