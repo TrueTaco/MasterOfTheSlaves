@@ -47,11 +47,10 @@ public class WorkingThread implements Runnable {
                     break;
                 }
             }
-//            if ((i+1) % 10 == 0) System.out.println("Round " + i + " done");
         }
-        //System.out.println("WorkingSlave " + pid + "-" + tid + " is trying to kill itself");
+        System.out.println("WorkingSlave " + pid + "-" + tid + " is trying to close itself");
         try {
-            father.annihilateWorkingThread();
+            father.closeWorkingThread();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -34,7 +34,7 @@ public class MasterSlave implements Runnable {
 
     // Slave
     private Thread WorkingThread;
-    private boolean killSlave = false;
+    private boolean closeSlave = false;
 
 
     public MasterSlave(String type, int masterPort) {
@@ -133,10 +133,10 @@ public class MasterSlave implements Runnable {
                         System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
                         runnableConnectionThread.forward(message);
                     }
-                    if (killSlave) {
+                    if (closeSlave) {
                         WorkingThread.join();
                         System.out.println("Slave " + pid + "-" + tid + ": killed my WorkingThread");
-                        killSlave = false;
+                        closeSlave = false;
                     }
                 }
             } catch (IOException | InterruptedException e) {
@@ -161,9 +161,6 @@ public class MasterSlave implements Runnable {
                     this.slaveHandlerList.add(newSlaveHandler);
 
                     newThread.start();
-
-                    // Adds node to list
-                    //System.out.println(newSlaveConnection.getLocalPort());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -264,8 +261,6 @@ public class MasterSlave implements Runnable {
             rsaInformation.addAll(primes);
 
             slaveHandler.sendToSlave(rsaInformation);
-
-//            chunkedPrimes = primes.subList(startIndex, endIndex);
             i++;
         }
         firstPointInTime = System.currentTimeMillis();
@@ -292,8 +287,8 @@ public class MasterSlave implements Runnable {
         return content;
     }
 
-    public void annihilateWorkingThread() throws InterruptedException {
-        killSlave = true;
+    public void closeWorkingThread() throws InterruptedException {
+        closeSlave = true;
     }
 
     public void shareSolution(String p, String q) throws IOException {
