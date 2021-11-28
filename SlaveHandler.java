@@ -139,7 +139,7 @@ public class SlaveHandler implements Runnable {
 
             master.setRSAInformation(arrayMessage[0], arrayMessage[1], arrayMessage[2]);
             return sendMessage("RSA-RESPONSE", "Master received RSA information");
-        // if message type equals RSA solution, start the distribution process at the master and create a message with confirmation as payload
+        // If message type equals RSA solution, start the distribution process at the master and create a message with confirmation as payload
         }else if (message.getType().equals("RSA-SOLUTION")){
             ArrayList<String> pqPrimes = (ArrayList<String>) message.getPayload();
             master.distributeSolution(master.decrypt(pqPrimes.get(0), pqPrimes.get(1)));
