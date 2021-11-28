@@ -84,7 +84,7 @@ public class SlaveHandler implements Runnable {
     }
 
     // Returns message with text message as payload depending on the input type and payload
-    public Message sendMessage(String type, String payload) {
+    public Message createMessage(String type, String payload) {
         TextMessage textMessage = new TextMessage();
         textMessage.setMessage(payload);
 
@@ -108,7 +108,7 @@ public class SlaveHandler implements Runnable {
             bw.write(System.getProperty("line.separator"));
             bw.close();
             fw.close();
-            return sendMessage("READ", "OK");
+            return createMessage("READ", "OK");
 
         // If message type is READ, send and create a response message with the last x messages as payload depending on the received payload
         } else if (message.getType().equals("READ")) {
@@ -128,7 +128,7 @@ public class SlaveHandler implements Runnable {
                     txt += lastEntries.get(i - 1);
                     txt += "; ";
                 }
-                return sendMessage("READ", txt);
+                return createMessage("READ", txt);
             } catch (FileNotFoundException e) {
                 System.out.println("A client handle error occured.");
                 e.printStackTrace();
@@ -141,15 +141,15 @@ public class SlaveHandler implements Runnable {
             String[] arrayMessage = (String[]) message.getPayload();
 
             master.findRSASolution(arrayMessage[0], arrayMessage[1], arrayMessage[2]);
-            return sendMessage("RSA-RESPONSE", "Master received RSA information");
+            return createMessage("RSA-RESPONSE", "Master received RSA information");
 
         // If message type equals RSA-SOLUTION, start the distribution process at the master and create a response message with confirmation as payload
         }else if (message.getType().equals("RSA-SOLUTION")){
             ArrayList<String> pqPrimes = (ArrayList<String>) message.getPayload();
             master.distributeSolution(master.decrypt(pqPrimes.get(0), pqPrimes.get(1)));
-            return sendMessage("RSA-RESPONSE", "Master received RSA solution");
+            return createMessage("RSA-RESPONSE", "Master received RSA solution");
         }
-        return sendMessage("ERROR", "No matching message type");
+        return createMessage("ERROR", "No matching message type");
     }
 
     // Sends given ArrayList to connected slave
@@ -192,7 +192,7 @@ public class SlaveHandler implements Runnable {
 
     // Sends RSA solution to connected slave
     public void sendRSASolution(String chiffreText) throws IOException {
-        objectOutputStream.writeObject(sendMessage("RSA-SOLUTION", chiffreText));
+        objectOutputStream.writeObject(createMessage("RSA-SOLUTION", chiffreText));
         System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: send RSA solution");
     }
 }

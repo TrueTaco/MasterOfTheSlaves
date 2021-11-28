@@ -36,7 +36,7 @@ public class Client implements Runnable {
             String publicKey = "";
             String chiffre = "";
 
-            String amountOfPrimes = "100000";
+            String amountOfPrimes = "1000";
 
             switch (amountOfPrimes){
                 case "100":
@@ -119,7 +119,7 @@ public class Client implements Runnable {
     }
 
     // Returns message with text message as payload depending on the input type and payload
-    public Message sendMessage(String type, String payload) {
+    public Message createMessage(String type, String payload) {
         TextMessage textMessage = new TextMessage();
         textMessage.setMessage(payload);
 
@@ -131,12 +131,12 @@ public class Client implements Runnable {
     }
 
     public Message write(String txt) {
-        Message message = sendMessage("WRITE", txt);
+        Message message = createMessage("WRITE", txt);
         return message;
     }
 
     public Message read(int number) {
-        Message message = sendMessage("READ", String.valueOf(number));
+        Message message = createMessage("READ", String.valueOf(number));
         return message;
     }
 

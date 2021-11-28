@@ -100,7 +100,7 @@ public class MasterSlave implements Runnable {
                     }
                     Message message = read(slaveMasterObjectInputStream);
 
-                    // If message type equals New List, safe the received list
+                    // If message type equals New List, save the received list
                     if (message.getType().equals("NEW LIST")) {
                         this.NodeList = (ArrayList<Node>) message.getPayload();
                         String list = "";
@@ -115,7 +115,7 @@ public class MasterSlave implements Runnable {
                         newMessage.setType("HEARTBEAT-RESPONSE");
                         slaveMasterObjectOutputStream.writeObject(newMessage);
 
-                        // If message type equals RSA information, parse the information and start working slave with given parameters
+                        // If message type equals RSA information, parse the information and start workingThread with given parameters
                     } else if (message.getType().equals("RSA-INFORMATION")) {
                         System.out.println("Slave " + pid + "-" + tid + " received: RSA information");
                         ArrayList<String> rsaInformation = (ArrayList<String>) message.getPayload();
@@ -138,6 +138,7 @@ public class MasterSlave implements Runnable {
                         System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
                         runnableConnectionThread.forward(message);
                     }
+                    // Close WorkingThread
                     if (closeSlave) {
                         WorkingThread.join();
                         System.out.println("Slave " + pid + "-" + tid + ": killed my WorkingThread");
@@ -147,6 +148,7 @@ public class MasterSlave implements Runnable {
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
+
         } else if (type.equals("Master")) {
             try {
                 ServerSocket masterServerSocket = new ServerSocket(masterPort, 100);
@@ -156,7 +158,7 @@ public class MasterSlave implements Runnable {
                 Timer timer = new Timer();
                 timer.schedule(new ConnectionChecker(this), 5000, 5000);
 
-                // Connects to new slaves
+                // Connect to new slaves
                 while (true) {
                     Socket newSlaveConnection = masterServerSocket.accept();
 
@@ -176,7 +178,7 @@ public class MasterSlave implements Runnable {
     // Both
 
     // Returns message with text message as payload depending on the input type and payload
-    public Message sendMessage(String type, String payload) {
+    public Message createMessage(String type, String payload) {
         TextMessage textMessage = new TextMessage();
         textMessage.setMessage(payload);
 
