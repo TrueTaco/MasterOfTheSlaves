@@ -42,6 +42,7 @@ public class ConnectionThread implements Runnable {
         }
     }
 
+    // Reads given objectInputStream and returns the read message
     public Message read(ObjectInputStream ois) {
         Message ret = null;
         try {
@@ -52,6 +53,7 @@ public class ConnectionThread implements Runnable {
         return ret;
     }
 
+    // Forwards message to client
     public void forward(Message message) throws IOException {
         // FORWARDING TO CLIENT
         if (objectOutputStream != null){

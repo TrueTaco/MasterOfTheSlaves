@@ -9,6 +9,7 @@ public class ConnectionChecker extends TimerTask {
         this.master = master;
     }
 
+    // Instructs the slaveHandlers to do a heartbeat
     public void run() {
         System.out.println("Sending HEARTBEAT requests");
         for(SlaveHandler sh: master.slaveHandlerList){

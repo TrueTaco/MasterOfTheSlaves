@@ -10,11 +10,10 @@ import java.util.Scanner;
 import java.util.Timer;
 
 public class MasterSlave implements Runnable {
-    // Both
+
     private long pid;
     private long tid;
 
-    // Master?
     private static final int maxIncomingClients = 100;
     private String type;
     private int slavePort;
@@ -32,11 +31,11 @@ public class MasterSlave implements Runnable {
     public String chiffre;
     public String amountOfPrimes;
 
-    // Slave
     private Thread WorkingThread;
     private boolean closeSlave = false;
 
 
+    // Constructor for master
     public MasterSlave(String type, int masterPort) {
         this.type = type;
         if (type.equals("Master")) {
@@ -46,6 +45,7 @@ public class MasterSlave implements Runnable {
         }
     }
 
+    // Constructor for slave
     public MasterSlave(String type, int slavePort, int masterConnectionPort) {
         this.type = type;
         if (type.equals("Slave")) {
@@ -64,7 +64,6 @@ public class MasterSlave implements Runnable {
         this.type = type;
     }
 
-    // TODO: import help classes
     public void run() {
         pid = ProcessHandle.current().pid();
         tid = Thread.currentThread().getId();
@@ -72,14 +71,14 @@ public class MasterSlave implements Runnable {
         if (type.equals("Slave")) {
             try {
                 boolean discovered = false;
-                // Client Socket
+                // creates Client Socket ands start connection thread
                 ServerSocket clientServerSocket = new ServerSocket(slavePort, 100);
 
                 ConnectionThread runnableConnectionThread = new ConnectionThread(clientServerSocket, this);
                 Thread newConnectionThread = new Thread(runnableConnectionThread);
                 newConnectionThread.start();
 
-                // Slave Socket
+                // creates Slave Socket
                 Socket slaveServerSocket = initialiseClient(masterConnectionPort, "localhost");
 
                 OutputStream slaveMasterOutputStream = slaveServerSocket.getOutputStream();
@@ -92,7 +91,7 @@ public class MasterSlave implements Runnable {
                 System.out.println("Slave " + pid + "-" + tid + " is ready");
 
                 while (true) {
-                    // DISCORVERY
+                    // check if the node is already discovery
                     if (!discovered) {
                         Message message = read(slaveMasterObjectInputStream);
                         if (message.getType().equals("DISCOVERY")) {
@@ -101,6 +100,7 @@ public class MasterSlave implements Runnable {
                         discovered = true;
                     }
                     Message message = read(slaveMasterObjectInputStream);
+                    // if message type equals New List, safe the received list
                     if (message.getType().equals("NEW LIST")) {
                         this.NodeList = (ArrayList<Node>) message.getPayload();
                         String list = "";
@@ -108,11 +108,12 @@ public class MasterSlave implements Runnable {
                             list += element.getID() + ", ";
                         }
                         System.out.println("\nSlave " + pid + "-" + tid + ": " + "New nodelist received: " + list);
+                    // if message type equals heartbeat, create and send message as response
                     } else if (message.getType().equals("HEARTBEAT")) {
-                        this.NodeList = (ArrayList<Node>) message.getPayload();
                         Message newMessage = new Message();
                         newMessage.setType("HEARTBEAT-RESPONSE");
                         slaveMasterObjectOutputStream.writeObject(newMessage);
+                    // if message type equals RSA information, parse the information and start working slave with given parameters
                     } else if (message.getType().equals("RSA-INFORMATION")) {
                         System.out.println("Slave " + pid + "-" + tid + " received: RSA information");
                         ArrayList<String> rsaInformation = (ArrayList<String>) message.getPayload();
@@ -129,6 +130,7 @@ public class MasterSlave implements Runnable {
                         Thread newWorkingThread = new Thread(runnableWorkingThread);
                         WorkingThread = newWorkingThread;
                         newWorkingThread.start();
+                    // if no matching message type is found forward message to Client
                     } else {
                         System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
                         runnableConnectionThread.forward(message);
@@ -183,6 +185,7 @@ public class MasterSlave implements Runnable {
         return cs;
     }
 
+    // Reads given objectInputStream and returns the read message
     public Message read(ObjectInputStream ois) {
         Message ret = null;
         try {
@@ -194,6 +197,7 @@ public class MasterSlave implements Runnable {
         return ret;
     }
 
+    // returns message with text message as payload depending on the input type and payload
     public Message sendMessage(String type, String payload) {
         TextMessage textMessage = new TextMessage();
         textMessage.setMessage(payload);
@@ -205,6 +209,7 @@ public class MasterSlave implements Runnable {
         return message;
     }
 
+    // Replies discovery response by sending a node with information about itseld
     public void replyDiscovery(ObjectOutputStream objectOutputStream) throws IOException {
         System.out.println("Slave " + pid + "-" + tid + ": Discovery request received");
         Node node = new Node((pid + "-" + tid), slavePort, type);
@@ -215,12 +220,14 @@ public class MasterSlave implements Runnable {
         System.out.println("Slave " + pid + "-" + tid + ": Discovery response send");
     }
 
+    // Sends message to be forwarded to master
     public void forward(Message message) throws IOException {
         // FORWARDING TO MASTER
         this.slaveMasterObjectOutputStream.writeObject(message);
         System.out.println("Slave " + pid + "-" + tid + ": Forwarding message to Master");
     }
 
+    // Adds node to own NodeList and distributes it
     public void addNode(Node node) throws IOException {
         this.NodeList.add(node);
         for (SlaveHandler slaveHandler : slaveHandlerList) {
@@ -228,6 +235,7 @@ public class MasterSlave implements Runnable {
         }
     }
 
+    // Processes needed ranges for primes and instructs the slavehandler to send information to each of the slaves
     public void setRSAInformation(String publicKey, String chiffre, String amountOfPrimes) throws IOException {
         System.out.println("\nMaster sent: Computing information");
 
@@ -266,6 +274,7 @@ public class MasterSlave implements Runnable {
         firstPointInTime = System.currentTimeMillis();
     }
 
+    // Reads in the primes depending on amountOfPrimes
     public static ArrayList readFromFile(String amountOfPrimes) {
         ArrayList<String> content = new ArrayList<>();
 
@@ -287,10 +296,12 @@ public class MasterSlave implements Runnable {
         return content;
     }
 
+
     public void closeWorkingThread() throws InterruptedException {
         closeSlave = true;
     }
 
+    // Sends found solution to master
     public void shareSolution(String p, String q) throws IOException {
         Message message = new Message();
         ArrayList<String> pq = new ArrayList<>();
@@ -301,12 +312,14 @@ public class MasterSlave implements Runnable {
         slaveMasterObjectOutputStream.writeObject(message);
     }
 
+    // Master decrypts chiffre depending on p and q
     public String decrypt(String p, String q) {
         System.out.println("Time for decryption: " + (System.currentTimeMillis()-firstPointInTime) + "ms");
         RSAHelper helper = new RSAHelper();
         return helper.decrypt(p, q, chiffre);
     }
 
+    // Distributes solved chiffre to the slaves
     public void distributeSolution(String chiffre) throws IOException {
         for (SlaveHandler slaveHandler : slaveHandlerList) {
             slaveHandler.sendRSASolution(chiffre);

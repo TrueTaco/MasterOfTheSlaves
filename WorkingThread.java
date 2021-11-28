@@ -22,6 +22,7 @@ public class WorkingThread implements Runnable {
         this.father = father;
     }
 
+    // Tries to solve RSA with gives ranges for the primes and the publicKey
     public void run() {
         pid = ProcessHandle.current().pid();
         tid = Thread.currentThread().getId();

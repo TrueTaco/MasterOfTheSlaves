@@ -86,6 +86,7 @@ public class Client implements Runnable {
         }
     }
 
+    // Sends multiple prefabricated messages to the connected slave
     public void sendMultiple(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream) throws IOException, InterruptedException {
         int count = 0;
         int limit = 1; // sets the amount of the messages to send
@@ -118,6 +119,7 @@ public class Client implements Runnable {
         }
     }
 
+    // returns message with text message as payload depending on the input type and payload
     public Message sendMessage(String type, String payload) {
         TextMessage textMessage = new TextMessage();
         textMessage.setMessage(payload);
@@ -125,8 +127,6 @@ public class Client implements Runnable {
         Message message = new Message();
         message.setType(type);
         message.setPayload(textMessage);
-
-        System.out.println("\nClient sent: (" + type + ") " + payload);
 
         return message;
     }
@@ -141,6 +141,7 @@ public class Client implements Runnable {
         return message;
     }
 
+    // Reads given objectInputStream and returns the read message
     public Message readStream(ObjectInputStream ois) {
         Message ret = null;
 
