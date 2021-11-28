@@ -91,6 +91,7 @@ public class MasterSlave implements Runnable {
                 System.out.println("Slave " + pid + "-" + tid + " is ready");
 
                 while (true) {
+
                     // Check if the node is already discovery
                     if (!discovered) {
                         Message message = read(slaveMasterObjectInputStream);
@@ -100,6 +101,7 @@ public class MasterSlave implements Runnable {
                         discovered = true;
                     }
                     Message message = read(slaveMasterObjectInputStream);
+
                     // If message type equals New List, safe the received list
                     if (message.getType().equals("NEW LIST")) {
                         this.NodeList = (ArrayList<Node>) message.getPayload();
@@ -108,11 +110,13 @@ public class MasterSlave implements Runnable {
                             list += element.getID() + ", ";
                         }
                         System.out.println("\nSlave " + pid + "-" + tid + ": " + "New nodelist received: " + list);
+
                     // If message type equals heartbeat, create and send message as response
                     } else if (message.getType().equals("HEARTBEAT")) {
                         Message newMessage = new Message();
                         newMessage.setType("HEARTBEAT-RESPONSE");
                         slaveMasterObjectOutputStream.writeObject(newMessage);
+
                     // If message type equals RSA information, parse the information and start working slave with given parameters
                     } else if (message.getType().equals("RSA-INFORMATION")) {
                         System.out.println("Slave " + pid + "-" + tid + " received: RSA information");
@@ -130,6 +134,7 @@ public class MasterSlave implements Runnable {
                         Thread newWorkingThread = new Thread(runnableWorkingThread);
                         WorkingThread = newWorkingThread;
                         newWorkingThread.start();
+
                     // If no matching message type is found forward message to Client
                     } else {
                         System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");

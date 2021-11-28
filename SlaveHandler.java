@@ -97,6 +97,7 @@ public class SlaveHandler implements Runnable {
 
     // Computes message depending on the type and payload of the message
     public Message queryMessage(Message message) throws IOException {
+
         // If message type is WRITE, the slavehandler writes the payload into sockets.txt and create a message with OK as payload
         if (message.getType().equals("WRITE")) {
             String text = ((TextMessage) message.getPayload()).getMessage();
@@ -108,7 +109,8 @@ public class SlaveHandler implements Runnable {
             bw.close();
             fw.close();
             return sendMessage("READ", "OK");
-        // If message type is READ, send create a message and create a message with the last x messages as payload depending on the received payload
+
+        // If message type is READ, send and create a message with the last x messages as payload depending on the received payload
         } else if (message.getType().equals("READ")) {
             String text = ((TextMessage) message.getPayload()).getMessage();
             System.out.println("SlaveHandler does: READ");
@@ -131,6 +133,7 @@ public class SlaveHandler implements Runnable {
                 System.out.println("A client handle error occured.");
                 e.printStackTrace();
             }
+
         // If message type equals RSA, start RSA process at the master and create a message with confirmation as payload
         } else if (message.getType().equals("RSA")) {
             System.out.println("SlaveHandler does: RSA-INFORMATION");
@@ -139,6 +142,7 @@ public class SlaveHandler implements Runnable {
 
             master.setRSAInformation(arrayMessage[0], arrayMessage[1], arrayMessage[2]);
             return sendMessage("RSA-RESPONSE", "Master received RSA information");
+
         // If message type equals RSA-SOLUTION, start the distribution process at the master and create a message with confirmation as payload
         }else if (message.getType().equals("RSA-SOLUTION")){
             ArrayList<String> pqPrimes = (ArrayList<String>) message.getPayload();
