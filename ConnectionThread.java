@@ -20,6 +20,7 @@ public class ConnectionThread implements Runnable {
         tid = Thread.currentThread().getId();
 
         try {
+            // Wait for client to connect
             Socket clientSocket = ss.accept();
 
             OutputStream outputStream = clientSocket.getOutputStream();
@@ -31,6 +32,7 @@ public class ConnectionThread implements Runnable {
 
             System.out.println("ConnectionThread " + pid + "-" + tid + " is ready");
 
+            // Forward all messages from client to master
             while (true) {
                 Message message = read(objectInputStream);
                 System.out.println("ConnectionThread " + pid + "-" + tid + ": Calling function in Slave for forwarding");
