@@ -55,6 +55,5 @@ public class WorkingThread implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        // TODO: Wenn fertig, dann Methode aus father ausrufen, die mich vernichtet
     }
 }

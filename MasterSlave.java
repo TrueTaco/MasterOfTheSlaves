@@ -115,7 +115,6 @@ public class MasterSlave implements Runnable {
                         slaveMasterObjectOutputStream.writeObject(newMessage);
                     } else if (message.getType().equals("RSA-INFORMATION")) {
                         System.out.println("Slave " + pid + "-" + tid + " received: RSA information");
-                        // TODO: Variablen speichern
                         ArrayList<String> rsaInformation = (ArrayList<String>) message.getPayload();
 
                         String slavePublicKey = rsaInformation.get(0);
@@ -271,15 +270,6 @@ public class MasterSlave implements Runnable {
         }
         firstPointInTime = System.currentTimeMillis();
     }
-
-    // TODO: Primes aufteilen
-    // TODO: Public Key und Primes an Slaves schicken
-    // INFO: Grundsätzlich braucht ein Slave alle Primzahlen
-    // Äußere Schleife muss begrenzt werden, die innere hingegen nicht
-    // TODO: Im Slave Primes abarbeiten
-    // TODO: Bei isValid Nachricht an Master schicken
-    // TODO: Im Master die Nachricht entschlüsseln
-    // TODO: Entschlüsselte Nachricht an Client schicken
 
     public static ArrayList readFromFile(String amountOfPrimes) {
         ArrayList<String> content = new ArrayList<>();
