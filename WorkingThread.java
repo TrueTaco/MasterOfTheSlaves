@@ -53,7 +53,7 @@ public class WorkingThread implements Runnable {
         }
         System.out.println("WorkingSlave " + pid + "-" + tid + " is trying to close itself");
         try {
-            // Close this Thread();
+            // Close this thread
             father.closeWorkingThread();
         } catch (InterruptedException e) {
             e.printStackTrace();
