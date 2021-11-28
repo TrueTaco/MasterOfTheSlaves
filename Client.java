@@ -70,6 +70,7 @@ public class Client implements Runnable {
 
             //sendMultiple(objectOutputStream, objectInputStream);
 
+            // Print out all received messages
             while (true) {
                 message = readStream(objectInputStream);
 

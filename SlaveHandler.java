@@ -68,6 +68,7 @@ public class SlaveHandler implements Runnable {
         }
         return ret;
     }
+
     // Sends out discovery request to the slave and adds the response node to array in the master
     public void discoveryRequest(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream) throws IOException {
         Message message = new Message();
