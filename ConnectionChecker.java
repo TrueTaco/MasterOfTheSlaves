@@ -12,11 +12,12 @@ public class ConnectionChecker extends TimerTask {
     // Instructs all slaveHandlers to do a heartbeat
     public void run() {
         System.out.println("Sending HEARTBEAT requests");
-        for(SlaveHandler sh: master.slaveHandlerList){
+        for (SlaveHandler sh : master.slaveHandlerList) {
             try {
-                if (sh.getSlaveAnsweredHeartbeat() == true){
+                if (sh.getSlaveAnsweredHeartbeat() == true) {
                     sh.heartBeat();
-                }else {
+                } else {
+                    // Removes slaveHandler if slave didnt answer in time
                     master.threads.get(sh).join();
                     master.slaveHandlerList.remove(sh);
                     master.threads.remove(sh);
