@@ -1,5 +1,6 @@
 import java.io.Serializable;
 
+// Object for storing information about a slave
 public class Node implements Serializable {
     private String ID;
     private int port;
