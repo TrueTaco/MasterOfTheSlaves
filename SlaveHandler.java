@@ -40,7 +40,7 @@ public class SlaveHandler implements Runnable {
             while (true) {
                 Message message = read(objectInputStream);
                 if (message.getType().equals("HEARTBEAT-RESPONSE")) {
-//                    System.out.println("SlaveHandler " + pid + "-" + tid + " received: Heartbeat response ");
+                    System.out.println("SlaveHandler " + pid + "-" + tid + " received: Heartbeat response ");
                     slaveAnsweredHeartbeat = true;
                 } else {
 //                    TextMessage receivedText = (TextMessage) message.getPayload();
@@ -58,6 +58,7 @@ public class SlaveHandler implements Runnable {
         }
     }
 
+    // Reads given objectInputStream and returns the read message
     public Message read(ObjectInputStream ois) {
         Message ret = null;
         try {
@@ -67,7 +68,7 @@ public class SlaveHandler implements Runnable {
         }
         return ret;
     }
-
+    // Sends out discovery request to the slave and adds the response node to array in the master
     public void discoveryRequest(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream) throws IOException {
         Message message = new Message();
         message.setType("DISCOVERY");
@@ -81,6 +82,7 @@ public class SlaveHandler implements Runnable {
         }
     }
 
+    // returns message with text message as payload depending on the input type and payload
     public Message sendMessage(String type, String payload) {
         TextMessage textMessage = new TextMessage();
         textMessage.setMessage(payload);
@@ -92,8 +94,9 @@ public class SlaveHandler implements Runnable {
         return message;
     }
 
+    // computes message depending on the type and payload of the message
     public Message queryMessage(Message message) throws IOException {
-        String lastEntry = "";
+        // if message type is write, the slavehandler writes the payload into sockets.txt and create a message with OK as payload
         if (message.getType().equals("WRITE")) {
             String text = ((TextMessage) message.getPayload()).getMessage();
             System.out.println("SlaveHandler does: WRITE");
@@ -104,6 +107,7 @@ public class SlaveHandler implements Runnable {
             bw.close();
             fw.close();
             return sendMessage("READ", "OK");
+        // if message type is read, send create a message and create a message with the last x messages as payload depending on the received payload
         } else if (message.getType().equals("READ")) {
             String text = ((TextMessage) message.getPayload()).getMessage();
             System.out.println("SlaveHandler does: READ");
@@ -126,6 +130,7 @@ public class SlaveHandler implements Runnable {
                 System.out.println("A client handle error occured.");
                 e.printStackTrace();
             }
+        // if message type equals RSA, start RSA process at the master and create a message with confirmation as payload
         } else if (message.getType().equals("RSA")) {
             System.out.println("SlaveHandler does: RSA-INFORMATION");
 
@@ -133,6 +138,7 @@ public class SlaveHandler implements Runnable {
 
             master.setRSAInformation(arrayMessage[0], arrayMessage[1], arrayMessage[2]);
             return sendMessage("RSA-RESPONSE", "Master received RSA information");
+        // if message type equals RSA solution, start the distribution process at the master and create a message with confirmation as payload
         }else if (message.getType().equals("RSA-SOLUTION")){
             ArrayList<String> pqPrimes = (ArrayList<String>) message.getPayload();
             master.distributeSolution(master.decrypt(pqPrimes.get(0), pqPrimes.get(1)));
@@ -141,6 +147,7 @@ public class SlaveHandler implements Runnable {
         return sendMessage("ERROR", "No matching message type");
     }
 
+    // sends given ArrayList the slave
     public void sendToSlave(ArrayList<String> rsaInformation) throws IOException {
         Message message = new Message();
         message.setType("RSA-INFORMATION");
@@ -150,6 +157,7 @@ public class SlaveHandler implements Runnable {
         System.out.println("SlaveHandler " + pid + "-" + tid + " forwarded: RSA information");
     }
 
+    // sends given NodeList to connected slave
     public void sendNewList(ArrayList NodeList) throws IOException {
         Message message = new Message();
         message.setPayload(NodeList);
@@ -164,20 +172,23 @@ public class SlaveHandler implements Runnable {
         objectOutputStream.writeObject(message);
     }
 
+
     public boolean getSlaveAnsweredHeartbeat() {
         return slaveAnsweredHeartbeat;
     }
 
+    // sends heartbeat request to slave
     public void heartBeat() throws IOException {
         Message message = new Message();
         message.setType("HEARTBEAT");
         slaveAnsweredHeartbeat = false;
         objectOutputStream.writeObject(message);
-//        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
+        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
     }
 
+    // sends RSA solution to slave
     public void sendRSASolution(String chiffreText) throws IOException {
         objectOutputStream.writeObject(sendMessage("RSA-SOLUTION", chiffreText));
-//        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
+        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: send RSA solution");
     }
 }

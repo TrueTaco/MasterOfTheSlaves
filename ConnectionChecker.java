@@ -9,6 +9,7 @@ public class ConnectionChecker extends TimerTask {
         this.master = master;
     }
 
+    // Instructs the slaveHandlers to do a heartbeat
     public void run() {
         System.out.print("Sending HEARTBEAT requests");
         System.out.println(": " + master.slaveHandlerList.size() + " Slaves active");
@@ -18,6 +19,8 @@ public class ConnectionChecker extends TimerTask {
                     sh.heartBeat();
                 }else {
                     master.threads.get(sh).join();
+                    master.slaveHandlerList.remove(sh);
+                    master.threads.remove(sh);
                 }
 
             } catch (IOException | InterruptedException e) {
