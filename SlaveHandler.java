@@ -140,7 +140,7 @@ public class SlaveHandler implements Runnable {
 
             String[] arrayMessage = (String[]) message.getPayload();
 
-            master.setRSAInformation(arrayMessage[0], arrayMessage[1], arrayMessage[2]);
+            master.findRSASolution(arrayMessage[0], arrayMessage[1], arrayMessage[2]);
             return sendMessage("RSA-RESPONSE", "Master received RSA information");
 
         // If message type equals RSA-SOLUTION, start the distribution process at the master and create a response message with confirmation as payload
@@ -152,7 +152,7 @@ public class SlaveHandler implements Runnable {
         return sendMessage("ERROR", "No matching message type");
     }
 
-    // Sends given ArrayList the slave
+    // Sends given ArrayList to the slave
     public void sendToSlave(ArrayList<String> rsaInformation) throws IOException {
         Message message = new Message();
         message.setType("RSA-INFORMATION");
