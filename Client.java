@@ -64,7 +64,6 @@ public class Client implements Runnable {
             Message message = new Message();
             message.setType("RSA");
             message.setPayload(rsaInformation);
-            //System.out.println(message.getTime());
             System.out.println("\nClient sent: RSA Information");
 
             objectOutputStream.writeObject(message);
