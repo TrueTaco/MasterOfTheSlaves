@@ -32,7 +32,6 @@ public class Client implements Runnable {
             System.out.println("Client " + pid + "-" + tid + " is ready");
 
             Thread.sleep(1000);
-            // TODO: Alle public keys hier im Client mal speichern und dann auf basis der länge der primes mitgeben
 
             String publicKey = "";
             String chiffre = "";
