@@ -292,7 +292,7 @@ public class MasterSlave implements Runnable {
         closeSlave = true;
     }
 
-    // Replies discovery response by sending a node with information about itseld
+    // Replies discovery response by sending a node with information about itself
     public void replyDiscovery(ObjectOutputStream objectOutputStream) throws IOException {
         System.out.println("Slave " + pid + "-" + tid + ": Discovery request received");
         Node node = new Node((pid + "-" + tid), slavePort, type);
