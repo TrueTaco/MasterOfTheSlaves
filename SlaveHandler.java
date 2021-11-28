@@ -152,13 +152,12 @@ public class SlaveHandler implements Runnable {
         return sendMessage("ERROR", "No matching message type");
     }
 
-    // Sends given ArrayList to the slave
+    // Sends given ArrayList to connected slave
     public void sendToSlave(ArrayList<String> rsaInformation) throws IOException {
         Message message = new Message();
         message.setType("RSA-INFORMATION");
         message.setPayload(rsaInformation);
         objectOutputStream.writeObject(message);
-
         System.out.println("SlaveHandler " + pid + "-" + tid + " forwarded: RSA information");
     }
 
@@ -182,7 +181,7 @@ public class SlaveHandler implements Runnable {
         return slaveAnsweredHeartbeat;
     }
 
-    // Sends heartbeat request to slave
+    // Sends heartbeat request to connected slave
     public void heartBeat() throws IOException {
         Message message = new Message();
         message.setType("HEARTBEAT");
@@ -191,7 +190,7 @@ public class SlaveHandler implements Runnable {
         System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
     }
 
-    // Sends RSA solution to slave
+    // Sends RSA solution to connected slave
     public void sendRSASolution(String chiffreText) throws IOException {
         objectOutputStream.writeObject(sendMessage("RSA-SOLUTION", chiffreText));
         System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: send RSA solution");
