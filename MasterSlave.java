@@ -240,7 +240,7 @@ public class MasterSlave implements Runnable {
         return content;
     }
 
-    // Processes needed ranges for primes and instructs the slavehandler to send information to each of the slaves
+    // Processes needed ranges for primes and instructs all slaveHandlers to send information to their slave
     public void findRSASolution(String publicKey, String chiffre, String amountOfPrimes) throws IOException {
         System.out.println("\nMaster sent: Computing information");
 
