@@ -32,6 +32,7 @@ public class MasterSlave implements Runnable {
     public String publicKey;
     public String chiffre;
     public String amountOfPrimes;
+    public boolean foundSolution = false;
 
     // Constructor for master
     public MasterSlave(String type, int masterPort) {
@@ -180,6 +181,7 @@ public class MasterSlave implements Runnable {
         }
     }
 
+
     // Both
 
     // Returns message with text message as payload depending on the input type and payload
@@ -206,14 +208,8 @@ public class MasterSlave implements Runnable {
         return ret;
     }
 
-    // Master
 
-    // Master decrypts chiffre depending on p and q
-    public String decrypt(String p, String q) {
-        System.out.println("Time for decryption: " + (System.currentTimeMillis() - firstPointInTime) + "ms");
-        RSAHelper helper = new RSAHelper();
-        return helper.decrypt(p, q, chiffre);
-    }
+    // Master
 
     // Adds node to own NodeList and distributes it
     public void addNode(Node node) throws IOException {
@@ -223,31 +219,12 @@ public class MasterSlave implements Runnable {
         }
     }
 
-    // Reads in the primes depending on amountOfPrimes
-    public static ArrayList readFromFile(String amountOfPrimes) {
-        ArrayList<String> content = new ArrayList<>();
-
-        String filename = "resources/primes" + amountOfPrimes + ".txt";
-
-        try {
-            File file = new File(filename);
-            Scanner myReader = new Scanner(file);
-
-            while (myReader.hasNextLine()) {
-                String data = myReader.nextLine();
-                content.add(data);
-            }
-            myReader.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occured while reading the file");
-            e.printStackTrace();
-        }
-        return content;
-    }
 
     // Processes needed ranges for primes and instructs all slaveHandlers to send information to their slave
     public void findRSASolution(String publicKey, String chiffre, String amountOfPrimes) throws IOException {
         System.out.println("\nMaster sent: Computing information");
+
+        this.foundSolution = false;
 
         this.publicKey = publicKey;
         this.chiffre = chiffre;
@@ -284,12 +261,47 @@ public class MasterSlave implements Runnable {
         firstPointInTime = System.currentTimeMillis();
     }
 
+    // Reads in the primes depending on amountOfPrimes
+    public static ArrayList readFromFile(String amountOfPrimes) {
+        ArrayList<String> content = new ArrayList<>();
+
+        String filename = "resources/primes" + amountOfPrimes + ".txt";
+
+        try {
+            File file = new File(filename);
+            Scanner myReader = new Scanner(file);
+
+            while (myReader.hasNextLine()) {
+                String data = myReader.nextLine();
+                content.add(data);
+            }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occured while reading the file");
+            e.printStackTrace();
+        }
+        return content;
+    }
+
     // Distributes solved chiffre to the slaves
     public void distributeSolution(String chiffre) throws IOException {
-        for (SlaveHandler slaveHandler : slaveHandlerList) {
-            slaveHandler.sendRSASolution(chiffre);
+        if (!this.foundSolution) {
+            this.foundSolution = true;
+
+            for (SlaveHandler slaveHandler : slaveHandlerList) {
+                slaveHandler.sendRSASolution(chiffre);
+            }
         }
+
     }
+
+    // Master decrypts chiffre depending on p and q
+    public String decrypt(String p, String q) {
+        System.out.println("Time for decryption: " + (System.currentTimeMillis() - firstPointInTime) + "ms");
+        RSAHelper helper = new RSAHelper();
+        return helper.decrypt(p, q, chiffre);
+    }
+
 
     // Slave
 
