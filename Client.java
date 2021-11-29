@@ -33,7 +33,7 @@ public class Client implements Runnable {
 
             Thread.sleep(1000);
 
-            Message message = sendRSA(1000);
+            Message message = sendRSA(100000);
 
             objectOutputStream.writeObject(message);
 

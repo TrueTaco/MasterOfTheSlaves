@@ -157,6 +157,7 @@ public class SlaveHandler implements Runnable {
         Message message = new Message();
         message.setType("RSA-INFORMATION");
         message.setPayload(rsaInformation);
+        objectOutputStream.flush();
         objectOutputStream.writeObject(message);
         System.out.println("SlaveHandler " + pid + "-" + tid + " forwarded: RSA information");
     }
@@ -186,6 +187,7 @@ public class SlaveHandler implements Runnable {
         Message message = new Message();
         message.setType("HEARTBEAT");
         slaveAnsweredHeartbeat = false;
+        objectOutputStream.flush();
         objectOutputStream.writeObject(message);
         System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
     }

@@ -100,7 +100,6 @@ public class MasterSlave implements Runnable {
                         discovered = true;
                     }
                     Message message = read(slaveMasterObjectInputStream);
-
                     // If message type equals New List, save the received list
                     if (message.getType().equals("NEW LIST")) {
                         this.NodeList = (ArrayList<Node>) message.getPayload();
@@ -162,7 +161,7 @@ public class MasterSlave implements Runnable {
 
 
                 Timer timer = new Timer();
-                timer.schedule(new ConnectionChecker(this), 5000, 5000);
+                timer.schedule(new ConnectionChecker(this), 4000, 5000);
 
                 // Connect to new slaves
                 while (true) {
