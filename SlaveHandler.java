@@ -193,6 +193,6 @@ public class SlaveHandler implements Runnable {
     // Sends RSA solution to connected slave
     public void sendRSASolution(String chiffreText) throws IOException {
         objectOutputStream.writeObject(createMessage("RSA-SOLUTION", chiffreText));
-        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: send RSA solution");
+        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: RSA solution");
     }
 }
