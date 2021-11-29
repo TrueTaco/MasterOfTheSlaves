@@ -33,7 +33,7 @@ public class Client implements Runnable {
 
             Thread.sleep(1000);
 
-            Message message = createRSA(100000);
+            Message message = createRSA(1000);
 
             objectOutputStream.writeObject(message);
 
@@ -55,26 +55,24 @@ public class Client implements Runnable {
     }
 
     // Creates message with RSA computing information
-    public Message createRSA(int primes){
+    public Message createRSA(int amountOfPrimes){
         String publicKey = "";
         String chiffre = "";
 
-        String amountOfPrimes = String.valueOf(primes);
-
         switch (amountOfPrimes){
-            case "100":
+            case 100:
                 publicKey = "298874689697528581074572362022003292763";
                 chiffre = "b4820013b07bf8513ee59a905039fb631203c8b38ca3d59b475b4e4e092d3979";
                 break;
-            case "1000":
+            case 1000:
                 publicKey = "249488851623337787855631201847950907117";
                 chiffre = "55708f0326a16870b299f913984922c7b5b37725ce0f6670d963adc0dc3451c8";
                 break;
-            case "10000":
+            case 10000:
                 publicKey = "237023640130486964288372516117459992717";
                 chiffre = "a9fc180908ad5f60556fa42b3f76e30f48bcddfad906f312b6ca429f25cebbd0";
                 break;
-            case "100000":
+            case 100000:
                 publicKey = "174351747363332207690026372465051206619";
                 chiffre = "80f7b3b84e8354b36386c6833fe5c113445ce74cd30a21236a5c70f5fdca7208";
                 break;
@@ -83,7 +81,7 @@ public class Client implements Runnable {
                 break;
         }
 
-        String[] rsaInformation = {publicKey, chiffre, amountOfPrimes};
+        String[] rsaInformation = {publicKey, chiffre, String.valueOf(amountOfPrimes)};
 
         Message message = new Message();
         message.setType("RSA");
