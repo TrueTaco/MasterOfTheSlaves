@@ -133,6 +133,11 @@ public class MasterSlave implements Runnable {
                         WorkingThread = newWorkingThread;
                         newWorkingThread.start();
 
+                        // If message type equals RSA response, simply print it out
+                    } else if (message.getType().equals("RSA-RESPONSE")) {
+                        TextMessage textMessage = (TextMessage) message.getPayload();
+                        System.out.println("Slave " + pid + "-" + tid + " received: " + textMessage.getMessage());
+
                         // If no matching message type is found forward message to Client
                     } else {
                         System.out.println("Slave " + pid + "-" + tid + ": Calling function in ConnectionThread for forwarding");
