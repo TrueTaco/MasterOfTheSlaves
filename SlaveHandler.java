@@ -189,7 +189,7 @@ public class SlaveHandler implements Runnable {
         slaveAnsweredHeartbeat = false;
         objectOutputStream.flush();
         objectOutputStream.writeObject(message);
-        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
+        System.out.println("SlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
     }
 
     // Sends RSA solution to connected slave
