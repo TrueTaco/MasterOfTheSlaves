@@ -100,6 +100,7 @@ public class MasterSlave implements Runnable {
                         discovered = true;
                     }
                     Message message = read(slaveMasterObjectInputStream);
+                    if(message == null) return;
                     // If message type equals New List, save the received list
                     if (message.getType().equals("NEW LIST")) {
                         this.NodeList = (ArrayList<Node>) message.getPayload();
@@ -146,7 +147,7 @@ public class MasterSlave implements Runnable {
                     // Close WorkingThread
                     if (closeSlave) {
                         WorkingThread.join();
-                        System.out.println("Slave " + pid + "-" + tid + ": killed my WorkingThread");
+                        System.out.println("Slave " + pid + "-" + tid + ": closed my WorkingThread");
                         closeSlave = false;
                     }
                 }

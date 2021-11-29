@@ -88,7 +88,7 @@ public class Client implements Runnable {
         Message message = new Message();
         message.setType("RSA");
         message.setPayload(rsaInformation);
-        System.out.println("\nClient sent: RSA Information");
+        System.out.println("\nClient sent: RSA Information for " + amountOfPrimes + " primes");
         return message;
     }
 

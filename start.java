@@ -42,13 +42,13 @@ public class start {
     }
 
     public static void startMaster(int masterPort) {
-        System.out.println("Starting master at " + masterPort);
+        System.out.println("Starting master at :" + masterPort);
         MasterSlave runnableMaster = new MasterSlave("Master", masterPort);
         createThread(runnableMaster);
     }
 
     public static void startSlave(int masterPort, String masterDNS, int slavePort) {
-        System.out.println("Starting slave at " + slavePort + " connected to " + masterDNS + ":" + masterPort);
+        System.out.println("Starting slave at :" + slavePort + " connected to " + masterDNS + ":" + masterPort);
         MasterSlave runnableSlave = new MasterSlave("Slave", slavePort, masterPort, masterDNS);
         createThread(runnableSlave);
     }

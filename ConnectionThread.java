@@ -4,9 +4,12 @@ import java.net.Socket;
 
 public class ConnectionThread implements Runnable {
 
-    ServerSocket ss;
-    MasterSlave father;
-    ObjectOutputStream objectOutputStream;
+    public ServerSocket ss;
+    public MasterSlave father;
+    public ObjectOutputStream objectOutputStream;
+    public ObjectInputStream objectInputStream;
+    public Socket clientSocket;
+    public boolean connectedToClient = false;
     private long pid;
     private long tid;
 
@@ -23,6 +26,8 @@ public class ConnectionThread implements Runnable {
             try {
                 // Wait for client to connect
                 Socket clientSocket = ss.accept();
+                connectedToClient = true;
+                this.clientSocket = clientSocket;
 
                 OutputStream outputStream = clientSocket.getOutputStream();
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
@@ -30,6 +35,7 @@ public class ConnectionThread implements Runnable {
 
                 InputStream inputStream = clientSocket.getInputStream();
                 ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+                this.objectInputStream = objectInputStream;
 
                 System.out.println("ConnectionThread " + pid + "-" + tid + " is ready");
 
@@ -45,13 +51,14 @@ public class ConnectionThread implements Runnable {
                 }
             } catch (IOException | ClassNotFoundException e) {
                 System.out.println("ConnectionThread lost connection to client");
+                connectedToClient = false;
             }
         }
     }
 
     // Forwards message to client
     public void forward(Message message) throws IOException {
-        if (objectOutputStream != null) {
+        if (objectOutputStream != null && connectedToClient) {
             System.out.println("ConnectionThread " + pid + "-" + tid + ": Forwarding message to Client");
             this.objectOutputStream.writeObject(message);
         }
