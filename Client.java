@@ -10,10 +10,12 @@ public class Client implements Runnable {
 
     private int port;
     private String dns;
+    private int amountOfPrimes;
 
-    public Client(int port, String dns) {
+    public Client(int port, String dns, int amountOfPrimes) {
         this.port = port;
         this.dns = dns;
+        this.amountOfPrimes = amountOfPrimes;
     }
 
     public void run() {
@@ -33,7 +35,7 @@ public class Client implements Runnable {
 
             Thread.sleep(1000);
 
-            Message message = createRSA(1000);
+            Message message = createRSA(amountOfPrimes);
 
             objectOutputStream.writeObject(message);
 

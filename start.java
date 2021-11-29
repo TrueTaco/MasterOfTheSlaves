@@ -55,7 +55,7 @@ public class start {
 
     public static void startClient(int slavePort, String slaveDNS, int amountOfPrimes) {
         System.out.println("Starting client connected to " + slaveDNS + ":" + slavePort + " with " + amountOfPrimes + " primes to check");
-        Client runnableClient = new Client(slavePort, slaveDNS);
+        Client runnableClient = new Client(slavePort, slaveDNS, amountOfPrimes);
         createThread(runnableClient);
     }
 
