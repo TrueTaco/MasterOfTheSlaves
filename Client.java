@@ -33,7 +33,7 @@ public class Client implements Runnable {
 
             Thread.sleep(1000);
 
-            Message message = sendRSA(100000);
+            Message message = createRSA(100000);
 
             objectOutputStream.writeObject(message);
 
@@ -55,7 +55,7 @@ public class Client implements Runnable {
     }
 
     // Creates message with RSA computing information
-    public Message sendRSA(int primes){
+    public Message createRSA(int primes){
         String publicKey = "";
         String chiffre = "";
 
