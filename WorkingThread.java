@@ -32,6 +32,7 @@ public class WorkingThread implements Runnable {
         String q;
         boolean isValid = false;
 
+        // Test all primes in given range
         for (int i = startIndex; i < endIndex; i++) {
             p = primes.get(i);
             for (int j = 0; j < primes.size(); j++) {
@@ -40,6 +41,7 @@ public class WorkingThread implements Runnable {
                 if (isValid) {
                     System.out.println("WorkingSlave " + pid + "-" + tid + " found: p = " + p + ", q = " + q);
                     try {
+                        // Send solution to master
                         father.shareSolution(p, q);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -51,6 +53,7 @@ public class WorkingThread implements Runnable {
         }
         System.out.println("WorkingSlave " + pid + "-" + tid + " is trying to close itself");
         try {
+            // Close this thread
             father.closeWorkingThread();
         } catch (InterruptedException e) {
             e.printStackTrace();

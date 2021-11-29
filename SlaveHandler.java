@@ -68,6 +68,7 @@ public class SlaveHandler implements Runnable {
         }
         return ret;
     }
+
     // Sends out discovery request to the slave and adds the response node to array in the master
     public void discoveryRequest(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream) throws IOException {
         Message message = new Message();
@@ -82,8 +83,8 @@ public class SlaveHandler implements Runnable {
         }
     }
 
-    // returns message with text message as payload depending on the input type and payload
-    public Message sendMessage(String type, String payload) {
+    // Returns message with text message as payload depending on the input type and payload
+    public Message createMessage(String type, String payload) {
         TextMessage textMessage = new TextMessage();
         textMessage.setMessage(payload);
 
@@ -94,9 +95,10 @@ public class SlaveHandler implements Runnable {
         return message;
     }
 
-    // computes message depending on the type and payload of the message
+    // Computes message depending on the type and payload of the message
     public Message queryMessage(Message message) throws IOException {
-        // if message type is write, the slavehandler writes the payload into sockets.txt and create a message with OK as payload
+
+        // If message type is WRITE, the slaveHandler writes the payload into sockets.txt and create a response message with OK as payload
         if (message.getType().equals("WRITE")) {
             String text = ((TextMessage) message.getPayload()).getMessage();
             System.out.println("SlaveHandler does: WRITE");
@@ -106,8 +108,9 @@ public class SlaveHandler implements Runnable {
             bw.write(System.getProperty("line.separator"));
             bw.close();
             fw.close();
-            return sendMessage("READ", "OK");
-        // if message type is read, send create a message and create a message with the last x messages as payload depending on the received payload
+            return createMessage("READ", "OK");
+
+        // If message type is READ, send and create a response message with the last x messages as payload depending on the received payload
         } else if (message.getType().equals("READ")) {
             String text = ((TextMessage) message.getPayload()).getMessage();
             System.out.println("SlaveHandler does: READ");
@@ -125,39 +128,40 @@ public class SlaveHandler implements Runnable {
                     txt += lastEntries.get(i - 1);
                     txt += "; ";
                 }
-                return sendMessage("READ", txt);
+                return createMessage("READ", txt);
             } catch (FileNotFoundException e) {
                 System.out.println("A client handle error occured.");
                 e.printStackTrace();
             }
-        // if message type equals RSA, start RSA process at the master and create a message with confirmation as payload
+
+        // If message type equals RSA, start RSA process at the master and create a response message with confirmation as payload
         } else if (message.getType().equals("RSA")) {
             System.out.println("SlaveHandler does: RSA-INFORMATION");
 
             String[] arrayMessage = (String[]) message.getPayload();
 
-            master.setRSAInformation(arrayMessage[0], arrayMessage[1], arrayMessage[2]);
-            return sendMessage("RSA-RESPONSE", "Master received RSA information");
-        // if message type equals RSA solution, start the distribution process at the master and create a message with confirmation as payload
+            master.findRSASolution(arrayMessage[0], arrayMessage[1], arrayMessage[2]);
+            return createMessage("RSA-RESPONSE", "Master received RSA information");
+
+        // If message type equals RSA-SOLUTION, start the distribution process at the master and create a response message with confirmation as payload
         }else if (message.getType().equals("RSA-SOLUTION")){
             ArrayList<String> pqPrimes = (ArrayList<String>) message.getPayload();
             master.distributeSolution(master.decrypt(pqPrimes.get(0), pqPrimes.get(1)));
-            return sendMessage("RSA-RESPONSE", "Master distributed RSA solution");
+            return createMessage("RSA-RESPONSE", "Master received RSA solution");
         }
-        return sendMessage("ERROR", "No matching message type");
+        return createMessage("ERROR", "No matching message type");
     }
 
-    // sends given ArrayList the slave
+    // Sends given ArrayList to connected slave
     public void sendToSlave(ArrayList<String> rsaInformation) throws IOException {
         Message message = new Message();
         message.setType("RSA-INFORMATION");
         message.setPayload(rsaInformation);
         objectOutputStream.writeObject(message);
-
         System.out.println("SlaveHandler " + pid + "-" + tid + " forwarded: RSA information");
     }
 
-    // sends given NodeList to connected slave
+    // Sends given NodeList to connected slave
     public void sendNewList(ArrayList NodeList) throws IOException {
         Message message = new Message();
         message.setPayload(NodeList);
@@ -177,7 +181,7 @@ public class SlaveHandler implements Runnable {
         return slaveAnsweredHeartbeat;
     }
 
-    // sends heartbeat request to slave
+    // Sends heartbeat request to connected slave
     public void heartBeat() throws IOException {
         Message message = new Message();
         message.setType("HEARTBEAT");
@@ -186,9 +190,9 @@ public class SlaveHandler implements Runnable {
         System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
     }
 
-    // sends RSA solution to slave
+    // Sends RSA solution to connected slave
     public void sendRSASolution(String chiffreText) throws IOException {
-        objectOutputStream.writeObject(sendMessage("RSA-SOLUTION", chiffreText));
+        objectOutputStream.writeObject(createMessage("RSA-SOLUTION", chiffreText));
         System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: send RSA solution");
     }
 }

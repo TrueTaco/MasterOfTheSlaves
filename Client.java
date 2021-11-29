@@ -32,12 +32,11 @@ public class Client implements Runnable {
             System.out.println("Client " + pid + "-" + tid + " is ready");
 
             Thread.sleep(1000);
-            // TODO: Alle public keys hier im Client mal speichern und dann auf basis der länge der primes mitgeben
 
             String publicKey = "";
             String chiffre = "";
 
-            String amountOfPrimes = "100000";
+            String amountOfPrimes = "1000";
 
             switch (amountOfPrimes){
                 case "100":
@@ -65,13 +64,13 @@ public class Client implements Runnable {
             Message message = new Message();
             message.setType("RSA");
             message.setPayload(rsaInformation);
-            //System.out.println(message.getTime());
             System.out.println("\nClient sent: RSA Information");
 
             objectOutputStream.writeObject(message);
 
             //sendMultiple(objectOutputStream, objectInputStream);
 
+            // Print out all received messages
             while (true) {
                 message = readStream(objectInputStream);
 
@@ -119,8 +118,8 @@ public class Client implements Runnable {
         }
     }
 
-    // returns message with text message as payload depending on the input type and payload
-    public Message sendMessage(String type, String payload) {
+    // Returns message with text message as payload depending on the input type and payload
+    public Message createMessage(String type, String payload) {
         TextMessage textMessage = new TextMessage();
         textMessage.setMessage(payload);
 
@@ -132,12 +131,12 @@ public class Client implements Runnable {
     }
 
     public Message write(String txt) {
-        Message message = sendMessage("WRITE", txt);
+        Message message = createMessage("WRITE", txt);
         return message;
     }
 
     public Message read(int number) {
-        Message message = sendMessage("READ", String.valueOf(number));
+        Message message = createMessage("READ", String.valueOf(number));
         return message;
     }
 
