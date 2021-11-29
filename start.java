@@ -49,8 +49,7 @@ public class start {
 
     public static void startSlave(int masterPort, String masterDNS, int slavePort) {
         System.out.println("Starting slave at " + slavePort + " connected to " + masterDNS + ":" + masterPort);
-        // TODO: Add masterDNS to slave
-        MasterSlave runnableSlave = new MasterSlave("Slave", slavePort, masterPort);
+        MasterSlave runnableSlave = new MasterSlave("Slave", slavePort, masterPort, masterDNS);
         createThread(runnableSlave);
     }
 

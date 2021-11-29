@@ -45,7 +45,7 @@ public class MasterSlave implements Runnable {
     }
 
     // Constructor for slave
-    public MasterSlave(String type, int slavePort, int masterConnectionPort) {
+    public MasterSlave(String type, int slavePort, int masterConnectionPort, String masterDNS) {
         this.type = type;
         if (type.equals("Slave")) {
             this.slavePort = slavePort;
@@ -221,7 +221,7 @@ public class MasterSlave implements Runnable {
 
     // Processes needed ranges for primes and instructs all slaveHandlers to send information to their slave
     public void findRSASolution(String publicKey, String chiffre, String amountOfPrimes) throws IOException {
-        System.out.println("\nMaster sent: Computing information");
+        System.out.println("\nMaster sent: Computing information for " + amountOfPrimes + " primes");
 
         this.foundSolution = false;
 

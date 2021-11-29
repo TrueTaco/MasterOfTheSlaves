@@ -14,7 +14,7 @@ public class main {
         Thread.sleep(100);
 
         for (int i = 0; i < amountSlaves; i++) {
-            MasterSlave newRunnableSlave = new MasterSlave("Slave", masterPort + i + 1, masterPort);
+            MasterSlave newRunnableSlave = new MasterSlave("Slave", masterPort + i + 1, masterPort, "localhost");
             Thread newSlave = new Thread(newRunnableSlave);
             newSlave.start();
             newSlave.setName("Slave " + i);
