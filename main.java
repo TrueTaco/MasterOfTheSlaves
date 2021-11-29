@@ -13,11 +13,11 @@ public class main {
         threads.add(newMaster);
         Thread.sleep(100);
 
-        for(int i = 0; i < amountSlaves; i++) {
+        for (int i = 0; i < amountSlaves; i++) {
             MasterSlave newRunnableSlave = new MasterSlave("Slave", masterPort + i + 1, masterPort);
             Thread newSlave = new Thread(newRunnableSlave);
             newSlave.start();
-            newSlave.setName("Slave "+i);
+            newSlave.setName("Slave " + i);
             threads.add(newSlave);
             Thread.sleep(100);
         }
