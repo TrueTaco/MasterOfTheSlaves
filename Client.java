@@ -37,7 +37,7 @@ public class Client implements Runnable {
 
             Message message = createRSA(amountOfPrimes);
 
-            objectOutputStream.writeObject(message);
+            if(message != null) objectOutputStream.writeObject(message);
 
             //sendMultiple(objectOutputStream, objectInputStream);
 
@@ -58,6 +58,7 @@ public class Client implements Runnable {
 
     // Creates message with RSA computing information
     public Message createRSA(int amountOfPrimes){
+        boolean allowRequest = true;
         String publicKey = "";
         String chiffre = "";
 
@@ -79,9 +80,12 @@ public class Client implements Runnable {
                 chiffre = "80f7b3b84e8354b36386c6833fe5c113445ce74cd30a21236a5c70f5fdca7208";
                 break;
             default:
-                System.out.println("No matching amount of primes found");
+                System.out.println("\nAmount of primes is not set correctly");
+                allowRequest = false;
                 break;
         }
+
+        if(!allowRequest) return null;
 
         String[] rsaInformation = {publicKey, chiffre, String.valueOf(amountOfPrimes)};
 
