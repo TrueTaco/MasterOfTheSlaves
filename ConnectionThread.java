@@ -4,9 +4,12 @@ import java.net.Socket;
 
 public class ConnectionThread implements Runnable {
 
-    ServerSocket ss;
-    MasterSlave father;
-    ObjectOutputStream objectOutputStream;
+    public ServerSocket ss;
+    public MasterSlave father;
+    public ObjectOutputStream objectOutputStream;
+    public ObjectInputStream objectInputStream;
+    public Socket clientSocket;
+    public boolean connectedToClient = false;
     private long pid;
     private long tid;
 
@@ -19,45 +22,43 @@ public class ConnectionThread implements Runnable {
         pid = ProcessHandle.current().pid();
         tid = Thread.currentThread().getId();
 
-        try {
-            // Wait for client to connect
-            Socket clientSocket = ss.accept();
+        while (true) {
+            try {
+                // Wait for client to connect
+                Socket clientSocket = ss.accept();
+                connectedToClient = true;
+                this.clientSocket = clientSocket;
 
-            OutputStream outputStream = clientSocket.getOutputStream();
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-            this.objectOutputStream = objectOutputStream;
+                OutputStream outputStream = clientSocket.getOutputStream();
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+                this.objectOutputStream = objectOutputStream;
 
-            InputStream inputStream = clientSocket.getInputStream();
-            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+                InputStream inputStream = clientSocket.getInputStream();
+                ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+                this.objectInputStream = objectInputStream;
 
-            System.out.println("ConnectionThread " + pid + "-" + tid + " is ready");
+                System.out.println("ConnectionThread " + pid + "-" + tid + " is ready");
 
-            // Forward all messages from client to master
-            while (true) {
-                Message message = read(objectInputStream);
-                System.out.println("ConnectionThread " + pid + "-" + tid + ": Calling function in Slave for forwarding");
-                father.forward(message);
+                // Forward all messages from client to master
+                while (true) {
+                    if (objectInputStream.read() != -1) return;
+
+                    Message message = (Message) objectInputStream.readObject();
+
+                    System.out.println("ConnectionThread " + pid + "-" + tid + ": Calling function in Slave for forwarding");
+                    father.forward(message);
+
+                }
+            } catch (IOException | ClassNotFoundException e) {
+                System.out.println("ConnectionThread lost connection to client");
+                connectedToClient = false;
             }
-        } catch (IOException e) {
-            System.out.println("A ConnectionThread error occured.");
-            e.printStackTrace();
         }
-    }
-
-    // Reads given objectInputStream and returns the read message
-    public Message read(ObjectInputStream ois) {
-        Message ret = null;
-        try {
-            ret = (Message) ois.readObject();
-        } catch (Exception e) {
-            System.err.println(e.toString());
-        }
-        return ret;
     }
 
     // Forwards message to client
     public void forward(Message message) throws IOException {
-        if (objectOutputStream != null){
+        if (objectOutputStream != null && connectedToClient) {
             System.out.println("ConnectionThread " + pid + "-" + tid + ": Forwarding message to Client");
             this.objectOutputStream.writeObject(message);
         }

@@ -38,7 +38,10 @@ public class SlaveHandler implements Runnable {
             discoveryRequest(objectOutputStream, objectInputStream);
 
             while (true) {
-                Message message = read(objectInputStream);
+                if(objectInputStream.read() != -1) return;
+
+                Message message = (Message) objectInputStream.readObject();
+
                 if (message.getType().equals("HEARTBEAT-RESPONSE")) {
                     //System.out.println("SlaveHandler " + pid + "-" + tid + " received: Heartbeat response ");
                     slaveAnsweredHeartbeat = 0;
@@ -53,31 +56,19 @@ public class SlaveHandler implements Runnable {
                 }
 
             }
-        } catch (IOException e) {
-            System.out.println("A SlaveHandler " + pid + "-" + tid + " error occured.");
-            e.printStackTrace();
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("SlaveHandler " + pid + "-" + tid + ": Slave disconnected");
         }
-    }
-
-    // Reads given objectInputStream and returns the read message
-    public Message read(ObjectInputStream ois) {
-        Message ret = null;
-        try {
-            ret = (Message) ois.readObject();
-        } catch (Exception e) {
-            System.err.println(e.toString());
-        }
-        return ret;
     }
 
     // Sends out discovery request to the slave and adds the response node to array in the master
-    public void discoveryRequest(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream) throws IOException {
+    public void discoveryRequest(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream) throws IOException, ClassNotFoundException {
         Message message = new Message();
         message.setType("DISCOVERY");
 
         objectOutputStream.writeObject(message);
         System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: Discovery request");
-        message = read(objectInputStream);
+        message = (Message) objectInputStream.readObject();
         System.out.println("SlaveHandler " + pid + "-" + tid + " received: Discovery response");
         if (message.getType().equals("DISCOVERY-RESPONSE")) {
             this.master.addNode((Node) (message.getPayload()));
@@ -202,5 +193,21 @@ public class SlaveHandler implements Runnable {
     public void sendRSASolution(String chiffreText) throws IOException {
         objectOutputStream.writeObject(createMessage("RSA-SOLUTION", chiffreText));
         System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: RSA solution");
+    }
+
+    public long getPid() {
+        return pid;
+    }
+
+    public void setPid(long pid) {
+        this.pid = pid;
+    }
+
+    public long getTid() {
+        return tid;
+    }
+
+    public void setTid(long tid) {
+        this.tid = tid;
     }
 }

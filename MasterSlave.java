@@ -102,6 +102,7 @@ public class MasterSlave implements Runnable {
                         discovered = true;
                     }
                     Message message = read(slaveMasterObjectInputStream);
+                    if(message == null) return;
                     // If message type equals New List, save the received list
                     if (message.getType().equals("NEW LIST")) {
                         this.NodeList = (ArrayList<Node>) message.getPayload();
@@ -148,7 +149,7 @@ public class MasterSlave implements Runnable {
                     // Close WorkingThread
                     if (closeSlave) {
                         WorkingThread.join();
-                        System.out.println("Slave " + pid + "-" + tid + ": killed my WorkingThread");
+                        System.out.println("Slave " + pid + "-" + tid + ": closed my WorkingThread");
                         closeSlave = false;
                     }
                 }
@@ -223,7 +224,7 @@ public class MasterSlave implements Runnable {
 
     // Processes needed ranges for primes and instructs all slaveHandlers to send information to their slave
     public void findRSASolution(String publicKey, String chiffre, String amountOfPrimes) throws IOException {
-        System.out.println("\nMaster sent: Computing information");
+        System.out.println("\nMaster sent: Computing information for " + amountOfPrimes + " primes");
 
         this.foundSolution = false;
 
@@ -312,7 +313,7 @@ public class MasterSlave implements Runnable {
 
     // Replies discovery response by sending a node with information about itself
     public void replyDiscovery(ObjectOutputStream objectOutputStream) throws IOException {
-        System.out.println("Slave " + pid + "-" + tid + ": Discovery request received");
+        System.out.println("\nSlave " + pid + "-" + tid + ": Discovery request received");
         Node node = new Node((pid + "-" + tid), slavePort, type);
         Message nodeMessage = new Message();
         nodeMessage.setType("DISCOVERY-RESPONSE");
