@@ -22,6 +22,7 @@ public class MasterSlave implements Runnable {
     public ObjectOutputStream slaveMasterObjectOutputStream;
     private Thread WorkingThread;
     private boolean closeSlave = false;
+    private String dns;
 
     // Master
     public ArrayList<SlaveHandler> slaveHandlerList = new ArrayList<>();
@@ -45,11 +46,12 @@ public class MasterSlave implements Runnable {
     }
 
     // Constructor for slave
-    public MasterSlave(String type, int slavePort, int masterConnectionPort) {
+    public MasterSlave(String type, int slavePort, int masterConnectionPort, String dns) {
         this.type = type;
         if (type.equals("Slave")) {
             this.slavePort = slavePort;
             this.masterConnectionPort = masterConnectionPort;
+            this.dns = dns;
         } else {
             throw new java.lang.Error("This constructor is used for Slave");
         }
@@ -78,7 +80,7 @@ public class MasterSlave implements Runnable {
                 newConnectionThread.start();
 
                 // Creates Slave Socket
-                Socket slaveServerSocket = initialiseClient(masterConnectionPort, "localhost");
+                Socket slaveServerSocket = initialiseClient(masterConnectionPort, dns);
 
                 OutputStream slaveMasterOutputStream = slaveServerSocket.getOutputStream();
                 ObjectOutputStream slaveMasterObjectOutputStream = new ObjectOutputStream(slaveMasterOutputStream);
@@ -161,7 +163,7 @@ public class MasterSlave implements Runnable {
 
 
                 Timer timer = new Timer();
-                timer.schedule(new ConnectionChecker(this), 4000, 5000);
+                timer.schedule(new ConnectionChecker(this), 8000, 5000);
 
                 // Connect to new slaves
                 while (true) {

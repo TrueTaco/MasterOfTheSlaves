@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.util.TimerTask;
 
 public class ConnectionChecker extends TimerTask {
@@ -11,11 +10,11 @@ public class ConnectionChecker extends TimerTask {
 
     // Instructs all slaveHandlers to do a heartbeat
     public void run() {
-        System.out.print("Sending HEARTBEAT requests");
-        System.out.println(": " + master.slaveHandlerList.size() + " Slaves active");
+        //System.out.print("Sending HEARTBEAT requests");
+        //System.out.println(": " + master.slaveHandlerList.size() + " Slaves active");
         for (SlaveHandler sh : master.slaveHandlerList) {
             try {
-                if (sh.getSlaveAnsweredHeartbeat() == true) {
+                if (sh.getSlaveAnsweredHeartbeat() < 3) {
                     sh.heartBeat();
                 } else {
                     // Removes slaveHandler if slave didnt answer in time
@@ -24,7 +23,7 @@ public class ConnectionChecker extends TimerTask {
                     master.threads.remove(sh);
                 }
 
-            } catch (IOException | InterruptedException e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }

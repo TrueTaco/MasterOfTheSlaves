@@ -13,7 +13,7 @@ public class SlaveHandler implements Runnable {
     private ObjectOutputStream objectOutputStream;
     private ObjectInputStream objectInputStream;
 
-    private boolean slaveAnsweredHeartbeat = true;
+    private int slaveAnsweredHeartbeat = 0;
 
     public SlaveHandler(Socket s, MasterSlave master) {
         this.master = master;
@@ -40,13 +40,14 @@ public class SlaveHandler implements Runnable {
             while (true) {
                 Message message = read(objectInputStream);
                 if (message.getType().equals("HEARTBEAT-RESPONSE")) {
-                    System.out.println("SlaveHandler " + pid + "-" + tid + " received: Heartbeat response ");
-                    slaveAnsweredHeartbeat = true;
+                    //System.out.println("SlaveHandler " + pid + "-" + tid + " received: Heartbeat response ");
+                    slaveAnsweredHeartbeat = 0;
                 } else {
 //                    TextMessage receivedText = (TextMessage) message.getPayload();
 //                    System.out.println("SlaveHandler " + pid + "-" + tid + " received: " + receivedText.getMessage());
 
                     message = queryMessage(message);
+                    objectOutputStream.reset();
                     objectOutputStream.writeObject(message);
                     System.out.println("SlaveHandler " + pid + "-" + tid + " responded: " + ((TextMessage) message.getPayload()).getMessage());
                 }
@@ -178,18 +179,23 @@ public class SlaveHandler implements Runnable {
     }
 
 
-    public boolean getSlaveAnsweredHeartbeat() {
+    public int getSlaveAnsweredHeartbeat() {
         return slaveAnsweredHeartbeat;
     }
 
     // Sends heartbeat request to connected slave
-    public void heartBeat() throws IOException {
+    public void heartBeat()  {
         Message message = new Message();
         message.setType("HEARTBEAT");
-        slaveAnsweredHeartbeat = false;
-        objectOutputStream.flush();
-        objectOutputStream.writeObject(message);
-        System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
+        slaveAnsweredHeartbeat += 1;
+        try {
+            objectOutputStream.reset();
+            objectOutputStream.writeObject(message);
+        } catch (IOException e) {
+            System.out.println("Heartbeat failed");
+        }
+
+        //System.out.println("\nSlaveHandler " + pid + "-" + tid + " sent: HEARTBEAT request");
     }
 
     // Sends RSA solution to connected slave
