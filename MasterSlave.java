@@ -1,4 +1,4 @@
-import resources.RSAHelper;
+import helpers.RSAHelper;
 
 import java.io.*;
 import java.net.ServerSocket;

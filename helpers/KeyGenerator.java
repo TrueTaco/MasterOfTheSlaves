@@ -1,4 +1,4 @@
-package resources;
+package helpers;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;

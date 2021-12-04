@@ -1,4 +1,4 @@
-package resources;
+package helpers;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,7 +16,7 @@ public class ExampleApplication {
         String p;
         String q;
 
-        primes = readFromFile("resources/primes100.txt");
+        primes = readFromFile("primes100.txt");
         boolean isValid = false;
 
         for (int i = 0; i < primes.size(); i++) {

@@ -1,4 +1,4 @@
-import resources.RSAHelper;
+import helpers.RSAHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
