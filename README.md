@@ -1,3 +1,3 @@
 # MasterOfTheSlaves
 
-Der Sklave seines Meisters wird arbeiten!
+Verzeichnis mit Endergebnis: MasterOfTheSlaves\out\artifacts\MasterOfTheSlaves_jar

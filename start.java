@@ -6,9 +6,8 @@ public class start {
     public static void main(String[] args) throws InterruptedException {
 
         // INFO: Einbindung von BouncyCastle funktioniert, ohne extra Arbeit
-        // INFO: Projekt wird zurzeit mit JDK 11 kompiliert, da Raspberry Pi OpenSDK 11 verwendet
+        // INFO: Projekt wurde kurzzeitig mit JDK 11 kompiliert, da Raspberry Pi OpenSDK 11 verwendet
         // INFO: Das funktioniert allerdings trotzdem irgendwie nicht
-        // TODO: JDK Version ggf. wieder überall auf 17 stellen (Projekteinstellungen + Java Compiler)
         // TODO: Einfach in Requirements schreiben, dass wir JDK 17 verwenden
         // TODO: Ggf. JDK 17 auf Raspberry Pi installieren
 
