@@ -46,9 +46,6 @@ public class SlaveHandler implements Runnable {
                     //System.out.println("SlaveHandler " + pid + "-" + tid + " received: Heartbeat response ");
                     slaveAnsweredHeartbeat = 0;
                 } else {
-//                    TextMessage receivedText = (TextMessage) message.getPayload();
-//                    System.out.println("SlaveHandler " + pid + "-" + tid + " received: " + receivedText.getMessage());
-
                     message = queryMessage(message);
                     objectOutputStream.reset();
                     objectOutputStream.writeObject(message);

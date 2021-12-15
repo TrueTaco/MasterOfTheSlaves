@@ -4,13 +4,6 @@ public class start {
     public static ArrayList<Thread> threads = new ArrayList<>();
 
     public static void main(String[] args) throws InterruptedException {
-
-        // INFO: Einbindung von BouncyCastle funktioniert, ohne extra Arbeit
-        // INFO: Projekt wurde kurzzeitig mit JDK 11 kompiliert, da Raspberry Pi OpenSDK 11 verwendet
-        // INFO: Das funktioniert allerdings trotzdem irgendwie nicht
-        // TODO: Einfach in Requirements schreiben, dass wir JDK 17 verwenden
-        // TODO: Ggf. JDK 17 auf Raspberry Pi installieren
-
         String type = args[0];
         int masterPort;
         int slavePort;
